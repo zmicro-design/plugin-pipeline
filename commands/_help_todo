@@ -1,0 +1,13 @@
+#!/bin/bash
+
+help() {
+  echo "
+Usage:
+  list      List all pipelines
+  ls        Alias of list
+  run       Run command in pipeline
+  config    Show pipeline config
+"
+}
+
+help

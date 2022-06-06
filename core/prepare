@@ -1,0 +1,48 @@
+#!/bin/bash
+
+pipeline::prepare() {
+  local context=$1
+  if [ -z "$context" ]; then
+    context=$PWD
+  fi
+
+  # Network
+  docker network inspect $PLUGIN_PIPELINE_NETWORK >> /dev/null 2>&1
+  if [ "$?" != "0" ]; then
+    docker network create $PLUGIN_PIPELINE_NETWORK >> /dev/null 2>&1
+  fi
+
+  local dockerfile_path=$context/Dockerfile
+  local dotenv_path=$context/.env
+  local zmicro_rc=$context/.zmicrorc
+  if [ ! -f "$dockerfile_path" ]; then
+    log::error "Dockerfile not found"
+    exit 1
+  fi
+
+  if [ ! -f "$dotenv_path" ]; then
+    log::error ".env not found"
+    exit 1
+  fi
+
+  if [ ! -f "$zmicro_rc" ]; then
+    log::error ".zmicrorc not found"
+    exit 1
+  fi
+
+  # @TODO
+  # config::export $PLUGIN_PIPELINE_MOD
+  config::load_file $PLUGIN_PIPELINE_MOD
+  export PLUGIN_NAME=$PLUGIN_NAME
+  export PLUGIN_VERSION=$PLUGIN_VERSION
+  export PLUGIN_DESCRIPTION=$PLUGIN_DESCRIPTION
+
+  # load .zmicrorc
+  config::load_file $zmicro_rc
+
+  export PLUGIN_PIPELINE_CONTEXT=$context
+  export PLUGIN_PIPELINE_ENV_FILE=$dotenv_path
+  export PLUGIN_PIPELINE_NAME=$PIPELINE_NAME
+}
+
+export -f pipeline::prepare

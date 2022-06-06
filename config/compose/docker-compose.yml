@@ -1,0 +1,25 @@
+version: '3.7'
+
+services:
+  app:
+    build:
+      context: ${PLUGIN_PIPELINE_CONTEXT}
+      dockerfile: Dockerfile
+    container_name: ${PLUGIN_PIPELINE_NAME}
+    environment:
+      PIPELINE_CORE_NAME: ${PLUGIN_NAME}
+      PIPELINE_CORE_VERSION: ${PLUGIN_VERSION}
+      PIPELINE_CORE_DESCRIPTION: ${PLUGIN_DESCRIPTION}
+      PIPELINE_RUNNER_NAME: ${PLUGIN_PIPELINE_NAME}
+      PIPELINE_RUNNER_CONTEXT: ${PLUGIN_PIPELINE_CONTEXT}
+      PIPELINE_RUNNER_WORKDIR: ${PIPELINE_RUNNER_WORKDIR}
+      PIPELINE_RUNNER_ID: ${PLUGIN_PIPELINE_RUNNER_ID}
+    env_file:
+      - ${PLUGIN_PIPELINE_ENV_FILE}
+    # volumes:
+    #   - ${PLUGIN_PIPELINE_CONTEXT}:${PLUGIN_PIPELINE_WORKDIR}
+
+networks:
+  default:
+    external: true
+    name: ${PLUGIN_PIPELINE_NETWORK}

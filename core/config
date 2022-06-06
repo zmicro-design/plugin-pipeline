@@ -1,0 +1,14 @@
+#!/bin/bash
+
+pipeline::config() {
+  cd $PLUGIN_PIPELINE_DIR/config/compose
+
+  if [ "$DEBUG" = "true" ]; then
+    $DOCKER_COMPOSE config
+    exit 0
+  fi
+
+  $DOCKER_COMPOSE config
+}
+
+export -f pipeline::config

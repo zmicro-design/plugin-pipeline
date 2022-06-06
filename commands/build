@@ -1,0 +1,25 @@
+#!/bin/bash
+
+help() {
+  echo "Pipeline Build Stage"
+  echo ""
+  echo "Usage:"
+  echo "  zmicro pipeline build [options...]"
+}
+
+core() {
+  if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+    help
+    exit 0
+  fi
+
+  pipeline::prepare "$@"
+
+  pipeline::build "$@"
+}
+
+run() {
+  core "$@"
+}
+
+run "$@"

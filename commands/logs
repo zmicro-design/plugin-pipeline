@@ -1,0 +1,25 @@
+#!/bin/bash
+
+help() {
+  echo "Pipeline service logs"
+  echo ""
+  echo "Usage:"
+  echo "  zmicro pipeline logs [options...]"
+}
+
+core() {
+  if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+    help
+    exit 0
+  fi
+
+  pipeline::prepare "$@"
+
+  pipeline::logs "$@"
+}
+
+run() {
+  core "$@"
+}
+
+run "$@"

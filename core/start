@@ -1,0 +1,19 @@
+#!/bin/bash
+
+pipeline::start() {
+  pipeline::build "$@"
+
+  log::info "[$(os::timestamp)][pipeline][service][start] running ..."
+  cd $PLUGIN_PIPELINE_DIR/config/compose
+
+  if [ "$DEBUG" = "true" ]; then
+    $DOCKER_COMPOSE config
+    exit 0
+  fi
+
+  $DOCKER_COMPOSE up -d
+
+  log::success "[$(os::timestamp)][pipeline][service][start] done."
+}
+
+export -f pipeline::start
