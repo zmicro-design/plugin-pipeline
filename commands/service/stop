@@ -13,7 +13,7 @@ core() {
     exit 0
   fi
 
-  pipeline::prepare "$@"
+  pipeline::prepare
 
   pipeline::stop "$@"
 }

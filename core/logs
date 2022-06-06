@@ -8,7 +8,7 @@ pipeline::logs() {
     exit 0
   fi
 
-  $DOCKER_COMPOSE logs
+  $DOCKER_COMPOSE logs $@
 }
 
 export -f pipeline::logs
