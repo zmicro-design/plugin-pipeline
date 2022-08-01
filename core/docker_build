@@ -1,0 +1,66 @@
+#!/bin/bash
+
+pipeline::docker_build() {
+  local name="$1"
+  local context="$2"
+  local tags="$3"
+  local registry="$4"
+
+  if [ -z "$name" ]; then
+    log::error "[pipeline::docker_build] image name is required"
+    exit 1
+  fi
+
+  if [ -z "$context" ]; then
+    log::error "[pipeline::docker_build] image context is required"
+    exit 1
+  fi
+
+  if [ -z "$tags" ]; then
+    log::error "[pipeline::docker_build] image tags is required"
+    exit 1
+  fi
+
+  log::info "################## Build Info ##################"
+  log::info "name: $name"
+  log::info "context: $context"
+  log::info "tags: $tags"
+  log::info "registry: $registry"
+  log::info "################ Build Info END ################"
+
+  tags=$(string::split , ${tags})
+
+  # build_scripts="docker buildx build"
+  local build_scripts="docker build"
+
+  if [ -n "$registry" ]; then
+    local registries=$(string::split , ${registry})
+
+    # @STAGE: build
+    for registry in $registries; do
+      for tag in $tags; do
+        if [ -z "$tag" ]; then
+          continue
+        fi
+
+        build_scripts="${build_scripts} --tag ${registry}/${name}:${tag}"
+      done
+    done
+  else
+    for tag in $tags; do
+      if [ -z "$tag" ]; then
+        continue
+      fi
+
+      build_scripts="${build_scripts} --tag ${name}:${tag}"
+    done
+  fi
+
+  build_scripts="${build_scripts} ${registry}"
+
+  log::info "build_scripts: $build_scripts"
+
+  $build_scripts
+}
+
+export -f pipeline::docker_build

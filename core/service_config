@@ -1,6 +1,6 @@
 #!/bin/bash
 
-pipeline::config() {
+pipeline::service_config() {
   cd $PLUGIN_PIPELINE_DIR/config/compose
 
   if [ "$DEBUG" = "true" ]; then
@@ -11,4 +11,4 @@ pipeline::config() {
   $DOCKER_COMPOSE config
 }
 
-export -f pipeline::config
+export -f pipeline::service_config

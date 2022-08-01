@@ -1,6 +1,6 @@
 #!/bin/bash
 
-pipeline::logs() {
+pipeline::service_logs() {
   cd $PLUGIN_PIPELINE_DIR/config/compose
 
   if [ "$DEBUG" = "true" ]; then
@@ -11,4 +11,4 @@ pipeline::logs() {
   $DOCKER_COMPOSE logs $@
 }
 
-export -f pipeline::logs
+export -f pipeline::service_logs

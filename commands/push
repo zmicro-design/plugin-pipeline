@@ -2,7 +2,7 @@
 
 help() {
   echo "Usage:"
-  echo "  zpipeline build [--registry <registry>] [--tags <tags>] <name> <context>"
+  echo "  zpipeline push [--registry <registry>] [--tags <tags>] <name> <context>"
 }
 
 core() {
@@ -37,9 +37,9 @@ core() {
     esac
   done
 
-  log::info "################## Building ##################"
-  docker::build "$name" "$context" "$tags" "$registry"
-  log::info "################ Building END ################"
+  log::info "################## Pushing ##################"
+  docker::push "$name" "$context" "$tags" "$registry"
+  log::info "################ Pushing END ################"
 }
 
 run() {

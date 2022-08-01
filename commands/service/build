@@ -1,10 +1,10 @@
 #!/bin/bash
 
 help() {
-  echo "Show pipeline config"
+  echo "Pipeline Build Stage"
   echo ""
   echo "Usage:"
-  echo "  zmicro pipeline service config [options...]"
+  echo "  zmicro pipeline service build [options...]"
 }
 
 core() {
@@ -13,9 +13,9 @@ core() {
     exit 0
   fi
 
-  pipeline::service_prepare
+  pipeline::service_prepare "$@"
 
-  pipeline::service_config "$@"
+  pipeline::service_build "$@"
 }
 
 run() {

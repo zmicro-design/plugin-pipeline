@@ -4,7 +4,7 @@ help() {
   echo "Pipeline service logs"
   echo ""
   echo "Usage:"
-  echo "  zmicro pipeline logs [options...]"
+  echo "  zmicro pipeline service logs [options...]"
 }
 
 core() {
@@ -13,9 +13,9 @@ core() {
     exit 0
   fi
 
-  pipeline::prepare
+  pipeline::service_prepare
 
-  pipeline::logs "$@"
+  pipeline::service_logs "$@"
 }
 
 run() {

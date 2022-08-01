@@ -1,0 +1,8 @@
+#!/bin/bash
+
+pipeline::docker_deploy() {
+  local image="$1"
+  local context="$2"
+}
+
+export -f pipeline::docker_deploy

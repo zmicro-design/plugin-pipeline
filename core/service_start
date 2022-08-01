@@ -1,6 +1,6 @@
 #!/bin/bash
 
-pipeline::start() {
+pipeline::service_start() {
   pipeline::build "$@"
 
   log::info "[$(os::timestamp)][pipeline][service][start] running ..."
@@ -16,4 +16,4 @@ pipeline::start() {
   log::success "[$(os::timestamp)][pipeline][service][start] done."
 }
 
-export -f pipeline::start
+export -f pipeline::service_start

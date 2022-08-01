@@ -4,7 +4,7 @@ help() {
   echo "Pipeline run fresh"
   echo ""
   echo "Usage:"
-  echo "  zmicro pipeline run [options...]"
+  echo "  zmicro pipeline service run [options...]"
 }
 
 core() {
@@ -13,9 +13,9 @@ core() {
     exit 0
   fi
 
-  pipeline::prepare "$@"
+  pipeline::service_prepare "$@"
 
-  pipeline::run "$@"
+  pipeline::service_run "$@"
 }
 
 run() {

@@ -1,0 +1,39 @@
+#!/bin/bash
+
+# pipeline::git_checkout - Git clone and checkout a branch of a repository
+pipeline::git_checkout() {
+  local repo="$1"
+  local branch="$2"
+  local context="$3"
+
+  if [ -z "$repo" ]; then
+    log::error "[pipeline::git_checkout] repository is required"
+    exit 1
+  fi
+
+  if [ -z "$branch" ]; then
+    log::error "[pipeline::git_checkout] branch is required"
+    exit 1
+  fi
+
+  if [ -z "$context" ]; then
+    log::error "[pipeline::git_checkout] directory is required"
+    exit 1
+  fi
+
+  if [ -d "$context" ]; then
+    # log::info "[pipeline::git_checkout] removing existing directory $context"
+    rm -rf "$context"
+  fi
+
+  log::info "[pipeline::git_checkout] cloning $repo"
+  git clone $repo -b $branch $context --depth 1
+  if [ "$?" != "0" ]; then
+    log::error "[pipeline::git_checkout] failed to clone $repo"
+    exit 1
+  fi
+
+  log::success "[pipeline::git_checkout] successfully checkout $repo at $branch to $context"
+}
+
+export -f pipeline::git_checkout

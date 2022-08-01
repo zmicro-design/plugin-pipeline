@@ -13,9 +13,9 @@ core() {
     exit 0
   fi
 
-  pipeline::prepare
+  pipeline::service_prepare
 
-  pipeline::stop "$@"
+  pipeline::service_stop "$@"
 }
 
 run() {

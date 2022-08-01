@@ -1,0 +1,27 @@
+#!/bin/bash
+
+help() {
+  echo "Usage:"
+  echo "  zpipeline checkout <repo> <branch> <context>"
+}
+
+core() {
+  if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+    help
+    exit 0
+  fi
+
+  local repo=$1
+  local branch=$2
+  local context=$3
+
+  log::info "################## Checking out ##################"
+  docker::git_checkout "$repo" "$branch" "$context"
+  log::info "################ Checking out END ################"
+}
+
+run() {
+  core $@
+}
+
+run $@

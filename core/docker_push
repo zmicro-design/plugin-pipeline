@@ -1,0 +1,51 @@
+#!/bin/bash
+
+pipeline::docker_push() {
+  local name="$1"
+  local context="$2"
+  local tags="$3"
+  local registry="$4"
+
+  if [ -z "$name" ]; then
+    log::error "[pipeline::docker_push] image name is required"
+    exit 1
+  fi
+
+  if [ -z "$context" ]; then
+    log::error "[pipeline::docker_push] image context is required"
+    exit 1
+  fi
+
+  if [ -z "$tags" ]; then
+    log::error "[pipeline::docker_push] image tags is required"
+    exit 1
+  fi
+
+  tags=$(string::split , ${tags})
+
+  if [ -n "$registry" ]; then
+    local registries=$(string::split , ${registry})
+
+    # @STAGE: push
+    local registries=$(string::split , ${registry})
+    for registry in $registries; do
+      for tag in $tags; do
+        if [ -z "$tag" ]; then
+          continue
+        fi
+
+        docker push ${registry}/${name}:${tag}
+      done
+    done
+  else
+    for tag in $tags; do
+      if [ -z "$tag" ]; then
+        continue
+      fi
+
+      docker push ${name}:${tag}
+    done
+  fi
+}
+
+export -f pipeline::docker_push

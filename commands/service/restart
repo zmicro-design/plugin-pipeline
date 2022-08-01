@@ -13,10 +13,10 @@ core() {
     exit 0
   fi
 
-  pipeline::prepare
+  pipeline::service_prepare
 
-  pipeline::stop "$@"
-  pipeline::start "$@"
+  pipeline::service_stop "$@"
+  pipeline::service_start "$@"
 }
 
 run() {

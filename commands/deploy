@@ -1,0 +1,26 @@
+#!/bin/bash
+
+help() {
+  echo "Usage:"
+  echo "  zpipeline deploy <image> <context> <env>"
+}
+
+core() {
+  if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+    help
+    exit 0
+  fi
+
+  local image="$1"
+  local context="$2"
+  local env="$3"
+
+  # @TODO
+  log::error "Not implemented yet"
+}
+
+run() {
+  core $@
+}
+
+run $@

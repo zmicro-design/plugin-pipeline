@@ -1,6 +1,6 @@
 #!/bin/bash
 
-pipeline::stop() {
+pipeline::service_stop() {
   log::info "[$(os::timestamp)][pipeline][service][stop] running ..."
 
   cd $PLUGIN_PIPELINE_DIR/config/compose
@@ -15,4 +15,4 @@ pipeline::stop() {
   log::success "[$(os::timestamp)][pipeline][service][stop] done."
 }
 
-export -f pipeline::stop
+export -f pipeline::service_stop

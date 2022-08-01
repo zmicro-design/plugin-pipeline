@@ -1,6 +1,6 @@
 #!/bin/bash
 
-pipeline::prepare() {
+pipeline::service_prepare() {
   local context=$1
   if [ -z "$context" ]; then
     context=$PWD
@@ -45,4 +45,4 @@ pipeline::prepare() {
   export PLUGIN_PIPELINE_NAME=$PIPELINE_NAME
 }
 
-export -f pipeline::prepare
+export -f pipeline::service_prepare

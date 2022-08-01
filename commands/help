@@ -1,0 +1,37 @@
+#!/bin/bash
+
+name() {
+  local version=$(plugin::get_version $PLUGIN_PIPELINE_NAME)
+  echo "Zmicro Pipeline Pugin ($(color::success $version))"
+}
+
+description() {
+  echo "Zmicro Pipeline Pugin is a tool for running pipelines."
+}
+
+usage() {
+  echo "Usage:"
+  echo "  zpipeline build [args...]             - Build a docker image "
+  echo "  zpipeline help                        - Show help"
+}
+
+example() {
+  echo "Example:"
+  echo "  zpipeline build --registry registry.com/my-image --tags v1.1.1,v1.1,v1 my-image"
+}
+
+core() {
+  name
+  echo ""
+  description
+  echo ""
+  usage
+  echo ""
+  example
+}
+
+run() {
+  core $@
+}
+
+run $@
