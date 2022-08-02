@@ -1,8 +1,88 @@
 #!/bin/bash
 
 pipeline::docker_deploy() {
-  local image="$1"
-  local context="$2"
+  local name=$1
+  local config=$2
+
+  local image=$3
+  local network=$4
+
+  if [ -z "$name" ]; then
+    log::error "[pipeline::docker_deploy] name is required"
+    exit 1
+  fi
+
+  if [ -z "$config" ]; then
+    log::error "[pipeline::docker_deploy] config is required"
+    exit 1
+  fi
+
+  if [ ! -f "$config" ]; then
+    log::error "[pipeline::docker_deploy] config file is not found"
+    exit 1
+  fi
+
+  if [ ! -r "$config" ]; then
+    log::error "[pipeline::docker_deploy] config file read permission denied"
+    exit 1
+  fi
+
+  local build_scripts="docker run -d --name $name"
+  while read line; do
+    # empty line
+    if [ -z "$line" ]; then
+      continue
+    fi
+
+    # starts with #
+    if [ "${line:0:1}" = "#" ]; then
+      continue
+    fi
+
+    # remove end #
+    line=$(echo $line | awk -F'#' '{print $1}')
+
+    local key=$(echo $line | cut -d= -f1)
+    local value=$(echo $line | cut -d= -f2)
+    if [ -z "$key" ]; then
+      continue
+    fi
+
+    if [ -z "$value" ]; then
+      continue
+    fi
+
+    # remove single and double quotes
+    # if [ "${key:0:1}" = "'" ] || [ "${key:0:1}" = "\"" ]; then
+    #   key=$(echo $key | cut -d"'" -f2)
+    # fi
+    # if [ "${value:0:1}" = "'" ] || [ "${value:0:1}" = "\"" ]; then
+    #   value=$(echo $value | cut -d"'" -f2)
+    # fi
+
+    build_scripts="$build_scripts --env ${key}=${value}"
+
+    # custom image
+    if [ "$key" = "CI_IMAGE" ]; then
+      image=$value
+    fi
+
+    # custom network
+    if [ "$key" = "CI_NETWORK" ]; then
+      network=$value
+    fi
+  done < "$config"
+
+  if [ -z "$image" ]; then
+    log::error "[pipeline::docker_deploy] image is required"
+    exit 1
+  fi
+
+  if [ -n "$network" ]; then
+    build_scripts="$build_scripts --network $network"
+  fi
+
+  build_scripts="$build_scripts $image"
 }
 
 export -f pipeline::docker_deploy
