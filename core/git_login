@@ -54,9 +54,13 @@ pipeline::git_login() {
 
   local credential="https://$username:$password@$registry_host"
 
-  cat $HOME/.git-credentials | grep "@$registry_host" >/dev/null 2>&1
-  if [ "$?" != "0" ]; then
+  if [ ! -f "$HOME/.git-credentials" ]; then
     echo $credential | fs::prepend $HOME/.git-credentials
+  else
+    cat $HOME/.git-credentials | grep "@$registry_host" >/dev/null 2>&1
+    if [ "$?" != "0" ]; then
+      echo $credential | fs::prepend $HOME/.git-credentials
+    fi
   fi
 
   log::success "[pipeline::checkout] successfully login $registry with $username"
