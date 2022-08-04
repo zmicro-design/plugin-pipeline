@@ -1,7 +1,9 @@
 FROM whatwewant/pipeline_runner:v1.0.0
 
-RUN zmicro plugin update pipeline
+RUN zmicro plugin install pipeline
 
-COPY . /build
+WORKDIR /build
 
-RUN /build/cbp.sh
+COPY . .
+
+CMD ./cbp.sh

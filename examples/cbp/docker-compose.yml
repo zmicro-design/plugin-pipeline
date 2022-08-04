@@ -1,7 +1,10 @@
+version: '3.7'
+
 services:
   app:
     image: whatwewant/pipeline_runner:v1.0.0
     # command: zmicro plugin register pipeline && ./cbp.sh && sleep infinity
+    # build: .
     command: sleep infinity
     working_dir: /usr/local/lib/zmicro/plugins/pipeline/examples/cbp
     volumes:

@@ -49,17 +49,20 @@ pipeline::git_login() {
     exit 1
   fi
 
+  # git config --global credential.helper store
+  # git config --global credential.helper 'cache --timeout=604800'
   git config --global credential.helper store
-  git config --global credential.helper 'cache --timeout=604800'
 
   local credential="https://$username:$password@$registry_host"
 
-  if [ ! -f "$HOME/.git-credentials" ]; then
-    echo $credential | fs::prepend $HOME/.git-credentials
+  local git_credentials_path=$HOME/.git-credentials
+  if [ ! -f "$git_credentials_path" ]; then
+    touch $git_credentials_path
+    echo $credential | fs::prepend $git_credentials_path
   else
-    cat $HOME/.git-credentials | grep "@$registry_host" >/dev/null 2>&1
+    cat $git_credentials_path | grep "@$registry_host" >/dev/null 2>&1
     if [ "$?" != "0" ]; then
-      echo $credential | fs::prepend $HOME/.git-credentials
+      echo $credential | fs::prepend $git_credentials_path
     fi
   fi
 
