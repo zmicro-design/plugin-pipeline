@@ -8,6 +8,7 @@ help() {
   echo "  zpipeline cbp"
   echo ""
   echo "Environment Variables:"
+  echo "  PIPELINE_GIT_REGISTRY_IS_PUBLIC    - true or false"
   echo "  PIPELINE_GIT_REGISTRY           - Git registry to use"
   echo "  PIPELINE_GIT_USERNAME           - Git username to use"
   echo "  PIPELINE_GIT_PASSWORD           - Git password to use"
@@ -38,14 +39,16 @@ core() {
     exit 1
   fi
 
-  if [ -z "$PIPELINE_GIT_USERNAME" ]; then
-    echo "env PIPELINE_GIT_USERNAME is required"
-    exit 1
-  fi
+  if [ "$PIPELINE_GIT_REGISTRY_IS_PUBLIC" != "true" ]; then
+    if [ -z "$PIPELINE_GIT_USERNAME" ]; then
+      echo "env PIPELINE_GIT_USERNAME is required"
+      exit 1
+    fi
 
-  if [ -z "$PIPELINE_GIT_PASSWORD" ]; then
-    echo "env PIPELINE_GIT_PASSWORD is required"
-    exit 1
+    if [ -z "$PIPELINE_GIT_PASSWORD" ]; then
+      echo "env PIPELINE_GIT_PASSWORD is required"
+      exit 1
+    fi
   fi
 
   if [ -z "$PIPELINE_GIT_REPOSITORY" ]; then
@@ -106,9 +109,11 @@ core() {
 
   echo "$(date +%s)" >"$time_started_at"
 
-  # @1 git login
-  log::info "[pipeline::cbp] git login ..."
-  zmicro pipeline login git --registry "${PIPELINE_GIT_REGISTRY}" "${PIPELINE_GIT_USERNAME}" "${PIPELINE_GIT_PASSWORD}" | tee -a $log_file
+  if [ "$PIPELINE_GIT_REGISTRY_IS_PUBLIC" != "true" ]; then
+    # @1 git login
+    log::info "[pipeline::cbp] git login ..."
+    zmicro pipeline login git --registry "${PIPELINE_GIT_REGISTRY}" "${PIPELINE_GIT_USERNAME}" "${PIPELINE_GIT_PASSWORD}" | tee -a $log_file
+  fi
 
   # @2 git checkout
   log::info "[pipeline::cbp] git checkout ..."

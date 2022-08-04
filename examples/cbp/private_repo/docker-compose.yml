@@ -6,7 +6,7 @@ services:
     # command: zmicro plugin register pipeline && ./cbp.sh && sleep infinity
     # build: .
     command: sleep infinity
-    working_dir: /usr/local/lib/zmicro/plugins/pipeline/examples/cbp
+    working_dir: /usr/local/lib/zmicro/plugins/pipeline/examples/cbp/private_repo
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /usr/local/lib/zmicro/plugins/pipeline:/usr/local/lib/zmicro/plugins/pipeline
