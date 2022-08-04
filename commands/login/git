@@ -18,8 +18,8 @@ core() {
   while [ "$#" -gt 0 ]; do
     case "$1" in
     --registry)
+      registry="$2"
       shift
-      registry="$1"
       shift
       ;;
     *)
@@ -31,7 +31,8 @@ core() {
     esac
   done
 
-  docker::git_login "$username" "$password" "$registry"
+  log::info "git login: $username - $password - $registry"
+  pipeline::git_login "$username" "$password" "$registry" 
 }
 
 run() {

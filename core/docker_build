@@ -43,6 +43,10 @@ pipeline::docker_build() {
           continue
         fi
 
+        # ensure remove http:// and https://
+        registry=${registry#http:\/\/}
+        registry=${registry#https:\/\/}
+
         build_scripts="${build_scripts} --tag ${registry}/${name}:${tag}"
       done
     done
@@ -56,7 +60,7 @@ pipeline::docker_build() {
     done
   fi
 
-  build_scripts="${build_scripts} ${registry}"
+  build_scripts="${build_scripts} ${context}"
 
   log::info "build_scripts: $build_scripts"
 

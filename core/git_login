@@ -2,9 +2,9 @@
 
 # pipeline::git_login - Git clone and checkout a branch of a repository
 pipeline::git_login() {
-  local registry=$1
   local username=$1
   local password=$2
+  local registry=$3
 
   if [ "$registry" = "" ]; then
     log::error "[core][pipeline::git_login] registry is required"
@@ -18,7 +18,7 @@ pipeline::git_login() {
   local is_contains_user_pass=$(strings::contains "$registry" "@")
   if [ "$is_contains_user_pass" = "true" ]; then
     registry_host=$(echo $registry | awk -F '@' '{print $2}')
-    local user_pass=$(echo $registry | awk -F '@' '{print $1}' |  awk -F '://' '{print $2}')
+    local user_pass=$(echo $registry | awk -F '@' '{print $1}' | awk -F '://' '{print $2}')
     username=$(echo $user_pass | awk -F ':' '{print $1}')
     password=$(echo $user_pass | awk -F ':' '{print $2}')
   fi
@@ -37,13 +37,13 @@ pipeline::git_login() {
     log::error "[core][pipeline::git_login] password is required"
     exit 1
   fi
-  
+
   if [ "$registry_scheme" = "http" ]; then
     # http
-    echo >> /dev/null
+    echo >>/dev/null
   elif [ "$registry_scheme" = "https" ]; then
     # https
-    echo >> /dev/null
+    echo >>/dev/null
   else
     log::error "[core][pipeline::git_login] registry(${registry}) is invalid, must be started with http:// or https://"
     exit 1
@@ -52,11 +52,14 @@ pipeline::git_login() {
   git config --global credential.helper store
   git config --global credential.helper 'cache --timeout=604800'
 
-  local credential=https://$username:$password@$registry
+  local credential="https://$username:$password@$registry_host"
 
-  echo $credential | fs::prepend $HOME/.git-credentials
+  cat $HOME/.git-credentials | grep "@$registry_host" >/dev/null 2>&1
+  if [ "$?" != "0" ]; then
+    echo $credential | fs::prepend $HOME/.git-credentials
+  fi
 
-  log::success "[pipeline::checkout] successfully checkout $repo at $branch to $context"
+  log::success "[pipeline::checkout] successfully login $registry with $username"
 }
 
 export -f pipeline::git_login

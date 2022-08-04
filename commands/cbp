@@ -11,7 +11,7 @@ help() {
   echo "  PIPELINE_GIT_REGISTRY           - Git registry to use"
   echo "  PIPELINE_GIT_USERNAME           - Git username to use"
   echo "  PIPELINE_GIT_PASSWORD           - Git password to use"
-  echo "  PIPELINE_GIT_REPOSITORYSITORY   - Git repository to use"
+  echo "  PIPELINE_GIT_REPOSITORY   - Git repository to use"
   echo "  PIPELINE_GIT_BRANCH             - Git branch to use"
   echo "  PIPELINE_DOCKER_REGISTRY        - Docker registry to use"
   echo "  PIPELINE_DOCKER_USERNAME        - Docker username to use"
@@ -25,6 +25,12 @@ core() {
   if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
     help
     exit 0
+  fi
+
+  # Load dot env
+  if [ -f "$PWD/.env" ]; then
+    log::info "Loading .env ..."
+    source $PWD/.env
   fi
 
   if [ -z "$PIPELINE_GIT_REGISTRY" ]; then
@@ -82,6 +88,8 @@ core() {
   #   exit 1
   # fi
 
+  set -e
+
   local build_context="$PLUGIN_PIPELINE_BUILD_CONTEXT"
   if [ -d "$build_context" ]; then
     sudo rm -rf "$build_context"
@@ -94,24 +102,32 @@ core() {
   local time_started_at="$build_context/time_started_at"
   local time_finished_at="$build_context/time_finished_at"
 
-  echo "$(date +%s)" > "$time_started_at"
+  log::info "[pipeline::cbp] started"
+
+  echo "$(date +%s)" >"$time_started_at"
 
   # @1 git login
-  zmicro pipeline login git "${PIPELINE_GIT_REGISTRY}" "${PIPELINE_GIT_USERNAME}" "${PIPELINE_GIT_PASSWORD}" | tee -a $log_file
+  log::info "[pipeline::cbp] git login ..."
+  zmicro pipeline login git --registry "${PIPELINE_GIT_REGISTRY}" "${PIPELINE_GIT_USERNAME}" "${PIPELINE_GIT_PASSWORD}" | tee -a $log_file
 
   # @2 git checkout
+  log::info "[pipeline::cbp] git checkout ..."
   zmicro pipeline checkout "${PIPELINE_GIT_REPOSITORY}" "${PIPELINE_GIT_BRANCH}" "${repository_dir}" | tee -a $log_file
 
   # @3 docker login
-  zmicro pipeline login docker "${PIPELINE_DOCKER_REGISTRY}" "${PIPELINE_DOCKER_USERNAME}" "${PIPELINE_DOCKER_PASSWORD}" | tee -a $log_file
+  log::info "[pipeline::cbp] docker login ..."
+  zmicro pipeline login docker --registry "${PIPELINE_DOCKER_REGISTRY}" "${PIPELINE_DOCKER_USERNAME}" "${PIPELINE_DOCKER_PASSWORD}" | tee -a $log_file
 
   # @4 docker build
+  log::info "[pipeline::cbp] docker build ..."
   zmicro pipeline build --registry "${PIPELINE_DOCKER_REGISTRY}" --tags "${PIPELINE_IMAGE_TAGS}" "${PIPELINE_IMAGE_NAME}" "${repository_dir}" | tee -a $log_file
 
   # @5 docker push
+  log::info "[pipeline::cbp] docker push ..."
   zmicro pipeline push --registry "${PIPELINE_DOCKER_REGISTRY}" --tags "${PIPELINE_IMAGE_TAGS}" "${PIPELINE_IMAGE_NAME}" "${repository_dir}" | tee -a $log_file
 
-  echo "$(date +%s)" > "$time_finished_at"
+  echo "$(date +%s)" >"$time_finished_at"
+  log::info "[pipeline::cbp] finished"
 }
 
 run() {

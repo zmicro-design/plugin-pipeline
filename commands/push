@@ -19,13 +19,13 @@ core() {
   while [ "$#" -gt 0 ]; do
     case "$1" in
     --registry)
+      registry="$2"
       shift
-      registry="$1"
       shift
       ;;
     --tags)
+      tags="$2"
       shift
-      tags="$1"
       shift
       ;;
     *)
@@ -38,7 +38,7 @@ core() {
   done
 
   log::info "################## Pushing ##################"
-  docker::push "$name" "$context" "$tags" "$registry"
+  pipeline::docker_push "$name" "$context" "$tags" "$registry"
   log::info "################ Pushing END ################"
 }
 

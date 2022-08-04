@@ -23,14 +23,16 @@ export PLUGIN_PIPELINE_RUNNER_ID=${PLUGIN_PIPELINE_RUNNER_ID:-$(os::uuid)}
 export DOCKER_COMPOSE=${DOCKER_COMPOSE:-$(which docker-compose)}
 
 export PLUGIN_PIPELINE_BUILD_CONTEXT_DEFAULT="/tmp/zmicro_plugin_pipeline/build"
-export PLUGIN_PIPELINE_BUILD_CONTEXT=${PLUGIN_PIPELINE_BUILD_CONTEXT} 
+export PLUGIN_PIPELINE_BUILD_CONTEXT=${PLUGIN_PIPELINE_BUILD_CONTEXT}
 
 # PLUGIN_PIPELINE_BUILD_CONTEXT must starts with /build
-if [ "${PLUGIN_PIPELINE_BUILD_CONTEXT:0:6}" != "/build" ]; then
-  log::error "PLUGIN_PIPELINE_BUILD_CONTEXT must starts with /build, such as /build, /build/pipeline, /build/tmp ..."
-  exit 1
-fi
+if [ -n "$PLUGIN_PIPELINE_BUILD_CONTEXT" ]; then
+  if [ "${PLUGIN_PIPELINE_BUILD_CONTEXT:0:6}" != "/build" ] && [ "${PLUGIN_PIPELINE_BUILD_CONTEXT:0:4}" != "/tmp" ]; then
+    log::error "PLUGIN_PIPELINE_BUILD_CONTEXT must starts with /build, such as /build, /build/pipeline, /build/tmp ..."
+    exit 1
+  fi
 
-if [ "$PLUGIN_PIPELINE_BUILD_CONTEXT" = "" ]; then
-  export PLUGIN_PIPELINE_BUILD_CONTEXT=$PLUGIN_PIPELINE_BUILD_CONTEXT_DEFAULT
+  if [ "$PLUGIN_PIPELINE_BUILD_CONTEXT" = "" ]; then
+    export PLUGIN_PIPELINE_BUILD_CONTEXT=$PLUGIN_PIPELINE_BUILD_CONTEXT_DEFAULT
+  fi
 fi

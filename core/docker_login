@@ -15,6 +15,10 @@ pipeline::docker_login() {
     exit 1
   fi
 
+  # ensure remove http:// and https://
+  registry=${registry#http:\/\/}
+  registry=${registry#https:\/\/}
+
   docker login $registry -u $username -p $password >>/dev/null 2>&1
   if [ "$?" != "0" ]; then
     log::error "Docker Login Failed"

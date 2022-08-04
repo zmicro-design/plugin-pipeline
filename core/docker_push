@@ -34,7 +34,14 @@ pipeline::docker_push() {
           continue
         fi
 
-        docker push ${registry}/${name}:${tag}
+        # ensure remove http:// and https://
+        registry=${registry#http:\/\/}
+        registry=${registry#https:\/\/}
+
+        local image="${registry}/${name}:${tag}"
+        log::info "image pushing: $image ..."
+        docker push $image
+        echo ""
       done
     done
   else
@@ -43,7 +50,10 @@ pipeline::docker_push() {
         continue
       fi
 
-      docker push ${name}:${tag}
+      local image="${name}:${tag}"
+      log::info "image pushing: $image ..."
+      docker push $image
+      echo ""
     done
   fi
 }

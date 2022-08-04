@@ -16,7 +16,7 @@ core() {
   local context=$3
 
   log::info "################## Checking out ##################"
-  docker::git_checkout "$repo" "$branch" "$context"
+  pipeline::git_checkout "$repo" "$branch" "$context"
   log::info "################ Checking out END ################"
 }
 
