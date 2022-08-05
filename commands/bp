@@ -1,0 +1,117 @@
+#!/bin/bash
+
+set -e
+
+help() {
+  echo "BP: Build => Push"
+  echo ""
+  echo "Usage:"
+  echo "  zpipeline bp"
+  echo ""
+  echo "Environment Variables:"
+  echo "  PIPELINE_GIT_REGISTRY           - Git registry to use"
+  echo "  PIPELINE_GIT_REPOSITORY         - Git repository to use"
+  echo "  PIPELINE_GIT_BRANCH             - Git branch to use"
+  echo "  PIPELINE_GIT_REPOSITORY_DIR    - Git repository directory to use"
+  echo "  PIPELINE_DOCKER_REGISTRY        - Docker registry to use"
+  echo "  PIPELINE_IMAGE_NAME             - Docker image name to use"
+  echo "  PIPELINE_IMAGE_TAGS             - Docker image tags to use"
+  # echo "  PIPELINE_BUILD_CONTEXT          - Build context to use"
+}
+
+core() {
+  if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+    help
+    exit 0
+  fi
+
+  # Load dot env
+  if [ -f "$PWD/.env" ]; then
+    log::info "Loading .env ..."
+    source $PWD/.env
+  fi
+
+  if [ -z "$PIPELINE_GIT_REGISTRY" ]; then
+    echo "env PIPELINE_GIT_REGISTRY is required"
+    exit 1
+  fi
+
+  if [ -z "$PIPELINE_GIT_REPOSITORY" ]; then
+    echo "env PIPELINE_GIT_REPOSITORY is required"
+    exit 1
+  fi
+
+  if [ -z "$PIPELINE_GIT_BRANCH" ]; then
+    echo "env PIPELINE_GIT_BRANCH is required"
+    exit 1
+  fi
+
+  if [ -z "$PIPELINE_GIT_REPOSITORY_DIR" ]; then
+    echo "env PIPELINE_GIT_REPOSITORY_DIR is required"
+    exit 1
+  fi
+
+  if [ -z "$PIPELINE_DOCKER_REGISTRY" ]; then
+    echo "env PIPELINE_DOCKER_REGISTRY is required"
+    exit 1
+  fi
+
+  # if [ -z "$PIPELINE_DOCKER_USERNAME" ]; then
+  #   echo "env PIPELINE_DOCKER_USERNAME is required"
+  #   exit 1
+  # fi
+
+  # if [ -z "$PIPELINE_DOCKER_PASSWORD" ]; then
+  #   echo "env PIPELINE_DOCKER_PASSWORD is required"
+  #   exit 1
+  # fi
+
+  if [ -z "$PIPELINE_IMAGE_NAME" ]; then
+    echo "env PIPELINE_IMAGE_NAME is required"
+    exit 1
+  fi
+
+  if [ -z "$PIPELINE_IMAGE_TAGS" ]; then
+    echo "env PIPELINE_IMAGE_TAGS is required"
+    exit 1
+  fi
+
+  # if [ -d "$PIPELINE_BUILD_CONTEXT" ]; then
+  #   echo "PIPELINE_BUILD_CONTEXT is a directory"
+  #   exit 1
+  # fi
+
+  local build_context="$PLUGIN_PIPELINE_BUILD_CONTEXT"
+  if [ -d "$build_context" ]; then
+    sudo rm -rf "$build_context"
+  fi
+
+  mkdir -p "$build_context"
+
+  local log_file="$build_context/log"
+  local time_started_at="$build_context/time_started_at"
+  local time_finished_at="$build_context/time_finished_at"
+
+  log::info "[pipeline::bp] started"
+
+  echo "$(date +%s)" >"$time_started_at"
+
+  # @4 docker build
+  log::info "[pipeline::bp] docker build ..."
+  # zmicro pipeline build --registry "${PIPELINE_DOCKER_REGISTRY}" --tags "${PIPELINE_IMAGE_TAGS}" "${PIPELINE_IMAGE_NAME}" "${PIPELINE_GIT_REPOSITORY_DIR}" | tee -a $log_file
+  pipeline::docker_build "${PIPELINE_IMAGE_NAME}" "${PIPELINE_GIT_REPOSITORY_DIR}" "${PIPELINE_IMAGE_TAGS}" "${PIPELINE_DOCKER_REGISTRY}" | tee -a $log_file
+
+  # @5 docker push
+  log::info "[pipeline::bp] docker push ..."
+  # zmicro pipeline push --registry "${PIPELINE_DOCKER_REGISTRY}" --tags "${PIPELINE_IMAGE_TAGS}" "${PIPELINE_IMAGE_NAME}" "${PIPELINE_GIT_REPOSITORY_DIR}" | tee -a $log_file
+  pipeline::docker_push "${PIPELINE_IMAGE_NAME}" "${PIPELINE_GIT_REPOSITORY_DIR}" "${PIPELINE_IMAGE_TAGS}" "${PIPELINE_DOCKER_REGISTRY}" | tee -a $log_file
+
+  echo "$(date +%s)" >"$time_finished_at"
+  log::info "[pipeline::bp] finished"
+}
+
+run() {
+  core $@
+}
+
+run $@
