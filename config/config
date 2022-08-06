@@ -24,7 +24,7 @@ export DOCKER_COMPOSE=${DOCKER_COMPOSE:-$(which docker-compose)}
 
 export PIPELINE_BUILD_CONTEXT_DEFAULT="/tmp/zmicro_plugin_pipeline/build"
 
-if [ -z "$PLUGIN_PIPELINE_BUILD_CONTEXT" ]; then
+if [ -n "$PLUGIN_PIPELINE_BUILD_CONTEXT" ]; then
   export PLUGIN_PIPELINE_BUILD_CONTEXT=${PLUGIN_PIPELINE_BUILD_CONTEXT}
 else 
   export PLUGIN_PIPELINE_BUILD_CONTEXT=${PIPELINE_BUILD_CONTEXT}
@@ -32,7 +32,7 @@ fi
 
 # PLUGIN_PIPELINE_BUILD_CONTEXT must starts with /build
 if [ -n "$PLUGIN_PIPELINE_BUILD_CONTEXT" ]; then
-  if [ "${PLUGIN_PIPELINE_BUILD_CONTEXT:0:6}" != "/build" ] && [ "${PLUGIN_PIPELINE_BUILD_CONTEXT:0:4}" != "/tmp" ]; then
+  if [ "${PLUGIN_PIPELINE_BUILD_CONTEXT:0:13}" != "/data/plugins" ] && [ "${PLUGIN_PIPELINE_BUILD_CONTEXT:0:6}" != "/build" ] && [ "${PLUGIN_PIPELINE_BUILD_CONTEXT:0:4}" != "/tmp" ]; then
     log::error "PLUGIN_PIPELINE_BUILD_CONTEXT must starts with /build, such as /build, /build/pipeline, /build/tmp ..."
     exit 1
   fi
@@ -46,7 +46,7 @@ fi
 # # BUILD CONTEXT FILES
 # # build log
 # export PIPELINE_BUILD_CONTEXT_LOG="$PLUGIN_PIPELINE_BUILD_CONTEXT/log"
-# # build status:  running | succeed | failed
+# # build status:  pending | running | succeed | failed
 # export PIPELINE_BUILD_CONTEXT_STATUS="$PLUGIN_PIPELINE_BUILD_CONTEXT/status"
 # # build time
 # export PIPELINE_BUILD_CONTEXT_RUNNING_AT="$PLUGIN_PIPELINE_BUILD_CONTEXT/running_at"
