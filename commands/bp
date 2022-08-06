@@ -1,6 +1,8 @@
 #!/bin/bash
 
 set -e
+# fix tee modify the exit code: https://stackoverflow.com/questions/6871859/piping-command-output-to-tee-but-also-save-exit-code-of-command
+set -o pipefail
 
 help() {
   echo "BP: Build => Push"
@@ -20,6 +22,7 @@ help() {
 }
 
 core() {
+  exit 1
   if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
     help
     exit 0
@@ -98,20 +101,20 @@ core() {
 
   # @4 docker build
   log::info "[pipeline::bp] docker build ..."
-  # zmicro pipeline build --registry "${PIPELINE_DOCKER_REGISTRY}" --tags "${PIPELINE_IMAGE_TAGS}" "${PIPELINE_IMAGE_NAME}" "${PIPELINE_GIT_REPOSITORY_DIR}" | tee -a $log_file
-  pipeline::docker_build "${PIPELINE_IMAGE_NAME}" "${PIPELINE_GIT_REPOSITORY_DIR}" "${PIPELINE_IMAGE_TAGS}" "${PIPELINE_DOCKER_REGISTRY}" | tee -a $log_file
+  # zmicro pipeline build --registry "${PIPELINE_DOCKER_REGISTRY}" --tags "${PIPELINE_IMAGE_TAGS}" "${PIPELINE_IMAGE_NAME}" "${PIPELINE_GIT_REPOSITORY_DIR}"
+  pipeline::docker_build "${PIPELINE_IMAGE_NAME}" "${PIPELINE_GIT_REPOSITORY_DIR}" "${PIPELINE_IMAGE_TAGS}" "${PIPELINE_DOCKER_REGISTRY}"
 
   # @5 docker push
   log::info "[pipeline::bp] docker push ..."
-  # zmicro pipeline push --registry "${PIPELINE_DOCKER_REGISTRY}" --tags "${PIPELINE_IMAGE_TAGS}" "${PIPELINE_IMAGE_NAME}" "${PIPELINE_GIT_REPOSITORY_DIR}" | tee -a $log_file
-  pipeline::docker_push "${PIPELINE_IMAGE_NAME}" "${PIPELINE_GIT_REPOSITORY_DIR}" "${PIPELINE_IMAGE_TAGS}" "${PIPELINE_DOCKER_REGISTRY}" | tee -a $log_file
+  # zmicro pipeline push --registry "${PIPELINE_DOCKER_REGISTRY}" --tags "${PIPELINE_IMAGE_TAGS}" "${PIPELINE_IMAGE_NAME}" "${PIPELINE_GIT_REPOSITORY_DIR}"
+  pipeline::docker_push "${PIPELINE_IMAGE_NAME}" "${PIPELINE_GIT_REPOSITORY_DIR}" "${PIPELINE_IMAGE_TAGS}" "${PIPELINE_DOCKER_REGISTRY}"
 
   echo "$(date +%s)" >"$time_finished_at"
   log::info "[pipeline::bp] finished"
 }
 
 run() {
-  core $@
+  core $@ | tee -a $log_file
 }
 
 run $@

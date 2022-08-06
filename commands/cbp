@@ -1,6 +1,8 @@
 #!/bin/bash
 
 set -e
+# fix tee modify the exit code: https://stackoverflow.com/questions/6871859/piping-command-output-to-tee-but-also-save-exit-code-of-command
+set -o pipefail
 
 help() {
   echo "CBP is the full build stage"
@@ -112,36 +114,35 @@ core() {
   if [ "$PIPELINE_GIT_REGISTRY_IS_PUBLIC" != "true" ]; then
     # @1 git login
     log::info "[pipeline::cbp] git login ..."
-    # zmicro pipeline login git --registry "${PIPELINE_GIT_REGISTRY}" "${PIPELINE_GIT_USERNAME}" "${PIPELINE_GIT_PASSWORD}" | tee -a $log_file
-    pipeline::git_login "${PIPELINE_GIT_USERNAME}" "${PIPELINE_GIT_PASSWORD}" "${PIPELINE_GIT_REGISTRY}" | tee -a $log_file
+    # zmicro pipeline login git --registry "${PIPELINE_GIT_REGISTRY}" "${PIPELINE_GIT_USERNAME}" "${PIPELINE_GIT_PASSWORD}"
+    pipeline::git_login "${PIPELINE_GIT_USERNAME}" "${PIPELINE_GIT_PASSWORD}" "${PIPELINE_GIT_REGISTRY}"
   fi
 
   # @2 git checkout
   log::info "[pipeline::cbp] git checkout ..."
-  # zmicro pipeline checkout "${PIPELINE_GIT_REPOSITORY}" "${PIPELINE_GIT_BRANCH}" "${repository_dir}" | tee -a $log_file
-  pipeline::git_checkout "${PIPELINE_GIT_REPOSITORY}" "${PIPELINE_GIT_BRANCH}" "${repository_dir}" | tee -a $log_file
-
+  # zmicro pipeline checkout "${PIPELINE_GIT_REPOSITORY}" "${PIPELINE_GIT_BRANCH}" "${repository_dir}"
+  pipeline::git_checkout "${PIPELINE_GIT_REPOSITORY}" "${PIPELINE_GIT_BRANCH}" "${repository_dir}"
   # @3 docker login
   log::info "[pipeline::cbp] docker login ..."
-  # zmicro pipeline login docker --registry "${PIPELINE_DOCKER_REGISTRY}" "${PIPELINE_DOCKER_USERNAME}" "${PIPELINE_DOCKER_PASSWORD}" | tee -a $log_file
-  pipeline::docker_login "${PIPELINE_DOCKER_USERNAME}" "${PIPELINE_DOCKER_PASSWORD}" "${PIPELINE_DOCKER_REGISTRY}" | tee -a $log_file
+  # zmicro pipeline login docker --registry "${PIPELINE_DOCKER_REGISTRY}" "${PIPELINE_DOCKER_USERNAME}" "${PIPELINE_DOCKER_PASSWORD}"
+  pipeline::docker_login "${PIPELINE_DOCKER_USERNAME}" "${PIPELINE_DOCKER_PASSWORD}" "${PIPELINE_DOCKER_REGISTRY}"
 
   # @4 docker build
   log::info "[pipeline::cbp] docker build ..."
-  # zmicro pipeline build --registry "${PIPELINE_DOCKER_REGISTRY}" --tags "${PIPELINE_IMAGE_TAGS}" "${PIPELINE_IMAGE_NAME}" "${repository_dir}" | tee -a $log_file
-  pipeline::docker_build "${PIPELINE_IMAGE_NAME}" "${repository_dir}" "${PIPELINE_IMAGE_TAGS}" "${PIPELINE_DOCKER_REGISTRY}" | tee -a $log_file
+  # zmicro pipeline build --registry "${PIPELINE_DOCKER_REGISTRY}" --tags "${PIPELINE_IMAGE_TAGS}" "${PIPELINE_IMAGE_NAME}" "${repository_dir}"
+  pipeline::docker_build "${PIPELINE_IMAGE_NAME}" "${repository_dir}" "${PIPELINE_IMAGE_TAGS}" "${PIPELINE_DOCKER_REGISTRY}"
 
   # @5 docker push
   log::info "[pipeline::cbp] docker push ..."
-  # zmicro pipeline push --registry "${PIPELINE_DOCKER_REGISTRY}" --tags "${PIPELINE_IMAGE_TAGS}" "${PIPELINE_IMAGE_NAME}" "${repository_dir}" | tee -a $log_file
-  pipeline::docker_push "${PIPELINE_IMAGE_NAME}" "${repository_dir}" "${PIPELINE_IMAGE_TAGS}" "${PIPELINE_DOCKER_REGISTRY}" | tee -a $log_file
+  # zmicro pipeline push --registry "${PIPELINE_DOCKER_REGISTRY}" --tags "${PIPELINE_IMAGE_TAGS}" "${PIPELINE_IMAGE_NAME}" "${repository_dir}"
+  pipeline::docker_push "${PIPELINE_IMAGE_NAME}" "${repository_dir}" "${PIPELINE_IMAGE_TAGS}" "${PIPELINE_DOCKER_REGISTRY}"
 
   echo "$(date +%s)" >"$time_finished_at"
   log::info "[pipeline::cbp] finished"
 }
 
 run() {
-  core $@
+  core $@ | tee -a $log_file
 }
 
 run $@
