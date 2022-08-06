@@ -38,6 +38,11 @@ core() {
   # echo "PIPELINE_GIT_REPOSITORY_DIR: $PIPELINE_GIT_REPOSITORY_DIR"
   # dotenv::try_load $PIPELINE_GIT_REPOSITORY_DIR/.env
 
+  if [ -z "$PIPELINE_BUILD_ID" ]; then
+    log::error "[prepare] PIPELINE_BUILD_ID is required"
+    exit 1
+  fi
+
   if [ -z "$PLUGIN_PIPELINE_BUILD_CONTEXT" ]; then
     log::error "[bp] env PLUGIN_PIPELINE_BUILD_CONTEXT is required"
     exit 1
