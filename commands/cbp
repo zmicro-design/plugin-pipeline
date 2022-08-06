@@ -43,12 +43,21 @@ core() {
   # dotenv::try_load $PIPELINE_GIT_REPOSITORY_DIR/.env
 
   if [ -z "$PLUGIN_PIPELINE_BUILD_CONTEXT" ]; then
-    echo "env PLUGIN_PIPELINE_BUILD_CONTEXT is required"
+    log::error "[cbp] env PLUGIN_PIPELINE_BUILD_CONTEXT is required"
     exit 1
   fi
 
   if [ -d "$PLUGIN_PIPELINE_BUILD_CONTEXT" ]; then
-    sudo rm -rf $PLUGIN_PIPELINE_BUILD_CONTEXT
+    log::error "[cbp] PLUGIN_PIPELINE_BUILD_CONTEXT($PLUGIN_PIPELINE_BUILD_CONTEXT) is already exists, please remove it first"
+    exit 1
+    
+    # # / is not allow
+    # if [ "${PLUGIN_PIPELINE_BUILD_CONTEXT:1}" = "" ];
+    #   log::error "[build] env PLUGIN_PIPELINE_BUILD_CONTEXT(${PLUGIN_PIPELINE_BUILD_CONTEXT}) is not allow"
+    #   exit 1
+    # fi
+
+    # rm -rf $PLUGIN_PIPELINE_BUILD_CONTEXT
   fi
 
   mkdir -p $PLUGIN_PIPELINE_BUILD_CONTEXT
@@ -59,7 +68,7 @@ core() {
   if [ "$?" != "0" ]; then
     echo "failed" > $PIPELINE_BUILD_CONTEXT_STATUS
     echo "$(date +%s)" > $PIPELINE_BUILD_CONTEXT_FAILED_AT
-    echo "[pipeline::bp] failed to bp"
+    echo "[cbp] failed to bp"
     exit 1
   fi
 }

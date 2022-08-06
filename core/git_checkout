@@ -22,8 +22,16 @@ pipeline::git_checkout() {
   fi
 
   if [ -d "$context" ]; then
-    # log::info "[pipeline::git_checkout] removing existing directory $context"
-    rm -rf "$context"
+    log::info "[pipeline::git_checkout] git dir($context) is already exists"
+    exit 1
+    
+    # # / is not allow
+    # if [ "${context:1}" = "" ];
+    #   log::error "[build] env context(${context}) is not allow"
+    #   exit 1
+    # fi
+
+    # rm -rf "$context"
   fi
 
   log::info "[pipeline::git_checkout] cloning $repo"
