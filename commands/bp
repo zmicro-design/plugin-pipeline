@@ -22,16 +22,15 @@ help() {
 }
 
 core() {
-  exit 1
   if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
     help
     exit 0
   fi
 
   # Load dot env
-  if [ -f "$PWD/.env" ]; then
+  if [ -f "$PIPELINE_GIT_REPOSITORY_DIR/.env" ]; then
     log::info "Loading .env ..."
-    source $PWD/.env
+    source $PIPELINE_GIT_REPOSITORY_DIR/.env
   fi
 
   if [ -z "$PIPELINE_GIT_REGISTRY" ]; then
