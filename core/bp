@@ -34,7 +34,7 @@ pipeline::build_push() {
     exit 1
   fi
 
-  log::info "[pipeline::build_push] started"
+  log::info "[pipeline::build_push] starting ..."
 
   echo "$(date +%s)" > $PIPELINE_BUILD_CONTEXT_RUNNING_AT 
   echo "running" > $PIPELINE_BUILD_CONTEXT_STATUS
@@ -44,11 +44,11 @@ pipeline::build_push() {
   fi
 
   # @4 docker build
-  log::info "[pipeline::build_push] docker build ..."
+  log::info "[pipeline::build_push] building ..."
   pipeline::docker_build "${PIPELINE_IMAGE_NAME}" "${PIPELINE_GIT_REPOSITORY_DIR}" "${PIPELINE_IMAGE_TAGS}" "${PIPELINE_DOCKER_REGISTRY}"
 
   # @5 docker push
-  log::info "[pipeline::build_push] docker push ..."
+  log::info "[pipeline::build_push] pushing ..."
   pipeline::docker_push "${PIPELINE_IMAGE_NAME}" "${PIPELINE_GIT_REPOSITORY_DIR}" "${PIPELINE_IMAGE_TAGS}" "${PIPELINE_DOCKER_REGISTRY}"
 
   echo "succeed" > $PIPELINE_BUILD_CONTEXT_STATUS

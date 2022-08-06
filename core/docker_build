@@ -21,12 +21,14 @@ pipeline::docker_build() {
     exit 1
   fi
 
+  log::info ""
   log::info "################## Build Info ##################"
-  log::info "name: $name"
   log::info "context: $context"
+  log::info "name: $name"
   log::info "tags: $tags"
   log::info "registry: $registry"
   log::info "################ Build Info END ################"
+  log::info ""
 
   tags=$(string::split , ${tags})
 
@@ -62,7 +64,7 @@ pipeline::docker_build() {
 
   build_scripts="${build_scripts} ${context}"
 
-  log::info "build_scripts: $build_scripts"
+  # log::info "build_scripts: $build_scripts"
 
   $build_scripts
 }
