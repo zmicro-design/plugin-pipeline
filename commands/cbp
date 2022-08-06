@@ -33,113 +33,39 @@ core() {
   fi
 
   # Load dot env
+  # try current
   dotenv::try_load $PWD/.env
+  # try repo
+  # echo "PIPELINE_IMAGE_TAGS: $PIPELINE_IMAGE_TAGS"
+  # echo "PIPELINE_IMAGE_NAME: $PIPELINE_IMAGE_NAME"
+  # echo "PLUGIN_PIPELINE_BUILD_CONTEXT: $PLUGIN_PIPELINE_BUILD_CONTEXT"
+  # echo "PIPELINE_GIT_REPOSITORY_DIR: $PIPELINE_GIT_REPOSITORY_DIR"
+  # dotenv::try_load $PIPELINE_GIT_REPOSITORY_DIR/.env
 
-  if [ -z "$PIPELINE_GIT_REGISTRY" ]; then
-    echo "env PIPELINE_GIT_REGISTRY is required"
+  if [ -z "$PLUGIN_PIPELINE_BUILD_CONTEXT" ]; then
+    echo "env PLUGIN_PIPELINE_BUILD_CONTEXT is required"
     exit 1
   fi
 
-  if [ "$PIPELINE_GIT_REGISTRY_IS_PUBLIC" != "true" ]; then
-    if [ -z "$PIPELINE_GIT_USERNAME" ]; then
-      echo "env PIPELINE_GIT_USERNAME is required"
-      exit 1
-    fi
-
-    if [ -z "$PIPELINE_GIT_PASSWORD" ]; then
-      echo "env PIPELINE_GIT_PASSWORD is required"
-      exit 1
-    fi
+  if [ -d "$PLUGIN_PIPELINE_BUILD_CONTEXT" ]; then
+    sudo rm -rf $PLUGIN_PIPELINE_BUILD_CONTEXT
   fi
 
-  if [ -z "$PIPELINE_GIT_REPOSITORY" ]; then
-    echo "env PIPELINE_GIT_REPOSITORY is required"
+  mkdir -p $PLUGIN_PIPELINE_BUILD_CONTEXT
+
+  pipeline::env
+
+  pipeline::checkout_build_push | tee -a $PIPELINE_BUILD_CONTEXT_LOG
+  if [ "$?" != "0" ]; then
+    echo "failed" > $PIPELINE_BUILD_CONTEXT_STATUS
+    echo "$(date +%s)" > $PIPELINE_BUILD_CONTEXT_FAILED_AT
+    echo "[pipeline::bp] failed to bp"
     exit 1
   fi
-
-  if [ -z "$PIPELINE_GIT_BRANCH" ]; then
-    echo "env PIPELINE_GIT_BRANCH is required"
-    exit 1
-  fi
-
-  if [ -z "$PIPELINE_DOCKER_REGISTRY" ]; then
-    echo "env PIPELINE_DOCKER_REGISTRY is required"
-    exit 1
-  fi
-
-  if [ -z "$PIPELINE_DOCKER_USERNAME" ]; then
-    echo "env PIPELINE_DOCKER_USERNAME is required"
-    exit 1
-  fi
-
-  if [ -z "$PIPELINE_DOCKER_PASSWORD" ]; then
-    echo "env PIPELINE_DOCKER_PASSWORD is required"
-    exit 1
-  fi
-
-  if [ -z "$PIPELINE_IMAGE_NAME" ]; then
-    echo "env PIPELINE_IMAGE_NAME is required"
-    exit 1
-  fi
-
-  if [ -z "$PIPELINE_IMAGE_TAGS" ]; then
-    echo "env PIPELINE_IMAGE_TAGS is required"
-    exit 1
-  fi
-
-  # if [ -d "$PIPELINE_BUILD_CONTEXT" ]; then
-  #   echo "PIPELINE_BUILD_CONTEXT is a directory"
-  #   exit 1
-  # fi
-
-  local build_context="$PLUGIN_PIPELINE_BUILD_CONTEXT"
-  if [ -d "$build_context" ]; then
-    sudo rm -rf "$build_context"
-  fi
-
-  mkdir -p "$build_context"
-
-  local repository_dir="$build_context/repository"
-  local log_file="$build_context/log"
-  local time_started_at="$build_context/time_started_at"
-  local time_finished_at="$build_context/time_finished_at"
-
-  log::info "[pipeline::cbp] started"
-
-  echo "$(date +%s)" >"$time_started_at"
-
-  if [ "$PIPELINE_GIT_REGISTRY_IS_PUBLIC" != "true" ]; then
-    # @1 git login
-    log::info "[pipeline::cbp] git login ..."
-    # zmicro pipeline login git --registry "${PIPELINE_GIT_REGISTRY}" "${PIPELINE_GIT_USERNAME}" "${PIPELINE_GIT_PASSWORD}"
-    pipeline::git_login "${PIPELINE_GIT_USERNAME}" "${PIPELINE_GIT_PASSWORD}" "${PIPELINE_GIT_REGISTRY}"
-  fi
-
-  # @2 git checkout
-  log::info "[pipeline::cbp] git checkout ..."
-  # zmicro pipeline checkout "${PIPELINE_GIT_REPOSITORY}" "${PIPELINE_GIT_BRANCH}" "${repository_dir}"
-  pipeline::git_checkout "${PIPELINE_GIT_REPOSITORY}" "${PIPELINE_GIT_BRANCH}" "${repository_dir}"
-  # @3 docker login
-  log::info "[pipeline::cbp] docker login ..."
-  # zmicro pipeline login docker --registry "${PIPELINE_DOCKER_REGISTRY}" "${PIPELINE_DOCKER_USERNAME}" "${PIPELINE_DOCKER_PASSWORD}"
-  pipeline::docker_login "${PIPELINE_DOCKER_USERNAME}" "${PIPELINE_DOCKER_PASSWORD}" "${PIPELINE_DOCKER_REGISTRY}"
-
-  # @4 docker build
-  log::info "[pipeline::cbp] docker build ..."
-  # zmicro pipeline build --registry "${PIPELINE_DOCKER_REGISTRY}" --tags "${PIPELINE_IMAGE_TAGS}" "${PIPELINE_IMAGE_NAME}" "${repository_dir}"
-  pipeline::docker_build "${PIPELINE_IMAGE_NAME}" "${repository_dir}" "${PIPELINE_IMAGE_TAGS}" "${PIPELINE_DOCKER_REGISTRY}"
-
-  # @5 docker push
-  log::info "[pipeline::cbp] docker push ..."
-  # zmicro pipeline push --registry "${PIPELINE_DOCKER_REGISTRY}" --tags "${PIPELINE_IMAGE_TAGS}" "${PIPELINE_IMAGE_NAME}" "${repository_dir}"
-  pipeline::docker_push "${PIPELINE_IMAGE_NAME}" "${repository_dir}" "${PIPELINE_IMAGE_TAGS}" "${PIPELINE_DOCKER_REGISTRY}"
-
-  echo "$(date +%s)" >"$time_finished_at"
-  log::info "[pipeline::cbp] finished"
 }
 
 run() {
-  core $@ | tee -a $log_file
+  core $@
 }
 
 run $@

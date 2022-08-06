@@ -1,0 +1,102 @@
+#!/bin/bash
+
+pipeline::checkout_build_push() {
+  # break if any errors occured
+  set -e
+
+  if [ -z "$PLUGIN_PIPELINE_BUILD_CONTEXT" ]; then
+    echo "env PLUGIN_PIPELINE_BUILD_CONTEXT is required"
+    exit 1
+  fi
+
+  if [ ! -d "$PLUGIN_PIPELINE_BUILD_CONTEXT" ]; then
+    echo "PLUGIN_PIPELINE_BUILD_CONTEXT(${PLUGIN_PIPELINE_BUILD_CONTEXT}) is a directory"
+    exit 1
+  fi
+
+  if [ -z "$PIPELINE_GIT_REGISTRY" ]; then
+    echo "env PIPELINE_GIT_REGISTRY is required"
+    exit 1
+  fi
+
+  if [ "$PIPELINE_GIT_REGISTRY_IS_PUBLIC" != "true" ]; then
+    if [ -z "$PIPELINE_GIT_USERNAME" ]; then
+      echo "env PIPELINE_GIT_USERNAME is required"
+      exit 1
+    fi
+
+    if [ -z "$PIPELINE_GIT_PASSWORD" ]; then
+      echo "env PIPELINE_GIT_PASSWORD is required"
+      exit 1
+    fi
+  fi
+
+  if [ -z "$PIPELINE_GIT_REPOSITORY" ]; then
+    echo "env PIPELINE_GIT_REPOSITORY is required"
+    exit 1
+  fi
+
+  if [ -z "$PIPELINE_GIT_BRANCH" ]; then
+    echo "env PIPELINE_GIT_BRANCH is required"
+    exit 1
+  fi
+
+  if [ -z "$PIPELINE_DOCKER_REGISTRY" ]; then
+    echo "env PIPELINE_DOCKER_REGISTRY is required"
+    exit 1
+  fi
+
+  if [ -z "$PIPELINE_DOCKER_USERNAME" ]; then
+    echo "env PIPELINE_DOCKER_USERNAME is required"
+    exit 1
+  fi
+
+  if [ -z "$PIPELINE_DOCKER_PASSWORD" ]; then
+    echo "env PIPELINE_DOCKER_PASSWORD is required"
+    exit 1
+  fi
+
+  if [ -z "$PIPELINE_IMAGE_NAME" ]; then
+    echo "env PIPELINE_IMAGE_NAME is required"
+    exit 1
+  fi
+
+  if [ -z "$PIPELINE_IMAGE_TAGS" ]; then
+    echo "env PIPELINE_IMAGE_TAGS is required"
+    exit 1
+  fi
+
+  local repository_dir="$PLUGIN_PIPELINE_BUILD_CONTEXT/repository"
+  log::info "[pipeline::checkout_build_push] started"
+
+  echo "$(date +%s)" > $PIPELINE_BUILD_CONTEXT_RUNNING_AT
+  echo "running" > $PIPELINE_BUILD_CONTEXT_STATUS
+
+  if [ "$PIPELINE_GIT_REGISTRY_IS_PUBLIC" != "true" ]; then
+    # @1 git login
+    log::info "[pipeline::checkout_build_push] git login ..."
+    pipeline::git_login "${PIPELINE_GIT_USERNAME}" "${PIPELINE_GIT_PASSWORD}" "${PIPELINE_GIT_REGISTRY}"
+  fi
+
+  # @2 git checkout
+  log::info "[pipeline::checkout_build_push] git checkout ..."
+  pipeline::git_checkout "${PIPELINE_GIT_REPOSITORY}" "${PIPELINE_GIT_BRANCH}" "${repository_dir}"
+
+  # @3 docker login
+  log::info "[pipeline::checkout_build_push] docker login ..."
+  pipeline::docker_login "${PIPELINE_DOCKER_USERNAME}" "${PIPELINE_DOCKER_PASSWORD}" "${PIPELINE_DOCKER_REGISTRY}"
+
+  # @4 docker build
+  log::info "[pipeline::checkout_build_push] docker build ..."
+  pipeline::docker_build "${PIPELINE_IMAGE_NAME}" "${repository_dir}" "${PIPELINE_IMAGE_TAGS}" "${PIPELINE_DOCKER_REGISTRY}"
+
+  # @5 docker push
+  log::info "[pipeline::checkout_build_push] docker push ..."
+  pipeline::docker_push "${PIPELINE_IMAGE_NAME}" "${repository_dir}" "${PIPELINE_IMAGE_TAGS}" "${PIPELINE_DOCKER_REGISTRY}"
+
+  echo "succeed" > $PIPELINE_BUILD_CONTEXT_STATUS
+  echo "$(date +%s)" > $PIPELINE_BUILD_CONTEXT_SUCCEED_AT
+  log::info "[pipeline::checkout_build_push] finished"
+}
+
+export -f pipeline::checkout_build_push

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+# set -e
 # fix tee modify the exit code: https://stackoverflow.com/questions/6871859/piping-command-output-to-tee-but-also-save-exit-code-of-command
 set -o pipefail
 
@@ -30,6 +30,7 @@ core() {
   # Load dot env
   # try current
   dotenv::try_load $PWD/.env
+
   # try repo
   # echo "PIPELINE_IMAGE_TAGS: $PIPELINE_IMAGE_TAGS"
   # echo "PIPELINE_IMAGE_NAME: $PIPELINE_IMAGE_NAME"
@@ -37,87 +38,30 @@ core() {
   # echo "PIPELINE_GIT_REPOSITORY_DIR: $PIPELINE_GIT_REPOSITORY_DIR"
   # dotenv::try_load $PIPELINE_GIT_REPOSITORY_DIR/.env
 
-  if [ -z "$PIPELINE_GIT_REGISTRY" ]; then
-    echo "env PIPELINE_GIT_REGISTRY is required"
+  if [ -z "$PLUGIN_PIPELINE_BUILD_CONTEXT" ]; then
+    echo "env PLUGIN_PIPELINE_BUILD_CONTEXT is required"
     exit 1
   fi
 
-  if [ -z "$PIPELINE_GIT_REPOSITORY" ]; then
-    echo "env PIPELINE_GIT_REPOSITORY is required"
+  if [ -d "$PLUGIN_PIPELINE_BUILD_CONTEXT" ]; then
+    sudo rm -rf $PLUGIN_PIPELINE_BUILD_CONTEXT
+  fi
+
+  mkdir -p $PLUGIN_PIPELINE_BUILD_CONTEXT
+
+  pipeline::env
+
+  pipeline::build_push | tee -a $PIPELINE_BUILD_CONTEXT_LOG
+  if [ "$?" != "0" ]; then
+    echo "failed" > $PIPELINE_BUILD_CONTEXT_STATUS
+    echo "$(date +%s)" > $PIPELINE_BUILD_CONTEXT_FAILED_AT
+    echo "[pipeline::bp] failed to bp"
     exit 1
   fi
-
-  if [ -z "$PIPELINE_GIT_BRANCH" ]; then
-    echo "env PIPELINE_GIT_BRANCH is required"
-    exit 1
-  fi
-
-  if [ -z "$PIPELINE_GIT_REPOSITORY_DIR" ]; then
-    echo "env PIPELINE_GIT_REPOSITORY_DIR is required"
-    exit 1
-  fi
-
-  if [ -z "$PIPELINE_DOCKER_REGISTRY" ]; then
-    echo "env PIPELINE_DOCKER_REGISTRY is required"
-    exit 1
-  fi
-
-  # if [ -z "$PIPELINE_DOCKER_USERNAME" ]; then
-  #   echo "env PIPELINE_DOCKER_USERNAME is required"
-  #   exit 1
-  # fi
-
-  # if [ -z "$PIPELINE_DOCKER_PASSWORD" ]; then
-  #   echo "env PIPELINE_DOCKER_PASSWORD is required"
-  #   exit 1
-  # fi
-
-  if [ -z "$PIPELINE_IMAGE_NAME" ]; then
-    echo "env PIPELINE_IMAGE_NAME is required"
-    exit 1
-  fi
-
-  if [ -z "$PIPELINE_IMAGE_TAGS" ]; then
-    echo "env PIPELINE_IMAGE_TAGS is required"
-    exit 1
-  fi
-
-  # if [ -d "$PIPELINE_BUILD_CONTEXT" ]; then
-  #   echo "PIPELINE_BUILD_CONTEXT is a directory"
-  #   exit 1
-  # fi
-
-  local build_context="$PLUGIN_PIPELINE_BUILD_CONTEXT"
-  if [ -d "$build_context" ]; then
-    sudo rm -rf "$build_context"
-  fi
-
-  mkdir -p "$build_context"
-
-  local log_file="$build_context/log"
-  local time_started_at="$build_context/time_started_at"
-  local time_finished_at="$build_context/time_finished_at"
-
-  log::info "[pipeline::bp] started"
-
-  echo "$(date +%s)" >"$time_started_at"
-
-  # @4 docker build
-  log::info "[pipeline::bp] docker build ..."
-  # zmicro pipeline build --registry "${PIPELINE_DOCKER_REGISTRY}" --tags "${PIPELINE_IMAGE_TAGS}" "${PIPELINE_IMAGE_NAME}" "${PIPELINE_GIT_REPOSITORY_DIR}"
-  pipeline::docker_build "${PIPELINE_IMAGE_NAME}" "${PIPELINE_GIT_REPOSITORY_DIR}" "${PIPELINE_IMAGE_TAGS}" "${PIPELINE_DOCKER_REGISTRY}"
-
-  # @5 docker push
-  log::info "[pipeline::bp] docker push ..."
-  # zmicro pipeline push --registry "${PIPELINE_DOCKER_REGISTRY}" --tags "${PIPELINE_IMAGE_TAGS}" "${PIPELINE_IMAGE_NAME}" "${PIPELINE_GIT_REPOSITORY_DIR}"
-  pipeline::docker_push "${PIPELINE_IMAGE_NAME}" "${PIPELINE_GIT_REPOSITORY_DIR}" "${PIPELINE_IMAGE_TAGS}" "${PIPELINE_DOCKER_REGISTRY}"
-
-  echo "$(date +%s)" >"$time_finished_at"
-  log::info "[pipeline::bp] finished"
 }
 
 run() {
-  core $@ | tee -a $log_file
+  core $@
 }
 
 run $@
