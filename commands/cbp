@@ -33,10 +33,7 @@ core() {
   fi
 
   # Load dot env
-  if [ -f "$PWD/.env" ]; then
-    log::info "Loading .env ..."
-    source $PWD/.env
-  fi
+  dotenv::try_load $PWD/.env
 
   if [ -z "$PIPELINE_GIT_REGISTRY" ]; then
     echo "env PIPELINE_GIT_REGISTRY is required"

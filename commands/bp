@@ -28,10 +28,14 @@ core() {
   fi
 
   # Load dot env
-  if [ -f "$PIPELINE_GIT_REPOSITORY_DIR/.env" ]; then
-    log::info "Loading .env ..."
-    source $PIPELINE_GIT_REPOSITORY_DIR/.env
-  fi
+  # try current
+  dotenv::try_load $PWD/.env
+  # try repo
+  # echo "PIPELINE_IMAGE_TAGS: $PIPELINE_IMAGE_TAGS"
+  # echo "PIPELINE_IMAGE_NAME: $PIPELINE_IMAGE_NAME"
+  # echo "PLUGIN_PIPELINE_BUILD_CONTEXT: $PLUGIN_PIPELINE_BUILD_CONTEXT"
+  # echo "PIPELINE_GIT_REPOSITORY_DIR: $PIPELINE_GIT_REPOSITORY_DIR"
+  # dotenv::try_load $PIPELINE_GIT_REPOSITORY_DIR/.env
 
   if [ -z "$PIPELINE_GIT_REGISTRY" ]; then
     echo "env PIPELINE_GIT_REGISTRY is required"
