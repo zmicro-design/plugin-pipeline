@@ -8,25 +8,29 @@ pipeline::env() {
     exit 1
   fi
 
+  if [ ! -d "$PIPELINE_BUILD_CONTEXT" ]; then
+    log::error "[pipeline::env] PIPELINE_BUILD_CONTEXT(${PIPELINE_BUILD_CONTEXT}) dir not found"
+    exit 1
+  fi
+
   # build env
   export PIPELINE_BUILD_CONTEXT_ENV="$PLUGIN_PIPELINE_BUILD_CONTEXT/env"
 
   # build log
   export PIPELINE_BUILD_CONTEXT_LOG="$PLUGIN_PIPELINE_BUILD_CONTEXT/log"
-  
+
   # build status: pending | running | succeed | failed
   export PIPELINE_BUILD_CONTEXT_STATUS="$PLUGIN_PIPELINE_BUILD_CONTEXT/status"
-  
+
   # build time
   export PIPELINE_BUILD_CONTEXT_RUNNING_AT="$PLUGIN_PIPELINE_BUILD_CONTEXT/running_at"
   export PIPELINE_BUILD_CONTEXT_SUCCEED_AT="$PLUGIN_PIPELINE_BUILD_CONTEXT/ended_at"
   export PIPELINE_BUILD_CONTEXT_FAILED_AT="$PLUGIN_PIPELINE_BUILD_CONTEXT/failed_at"
 
-  # save build context
-  # echo "printenv > $PIPELINE_BUILD_CONTEXT_ENV"
-  # @TODO not works
-  # printenv > $PIPELINE_BUILD_CONTEXT_ENV 2>&1 > /dev/null
-  # export > $PIPELINE_BUILD_CONTEXT_ENV 2>&1 > /dev/null
+  # generate build context files
+  pipeline::env_generate_files
+
+  # save build context env
   pipeline::env_save
 
   # log
@@ -41,7 +45,12 @@ pipeline::env() {
 }
 
 pipeline::env_save() {
-  cat << EOF > $PIPELINE_BUILD_CONTEXT_ENV
+  # echo "printenv > $PIPELINE_BUILD_CONTEXT_ENV"
+  # @TODO not works
+  # printenv > $PIPELINE_BUILD_CONTEXT_ENV 2>&1 > /dev/null
+  # export > $PIPELINE_BUILD_CONTEXT_ENV 2>&1 > /dev/null
+
+  cat <<EOF >$PIPELINE_BUILD_CONTEXT_ENV
 # REPO
 PIPELINE_GIT_REGISTRY=$PIPELINE_GIT_REGISTRY
 PIPELINE_GIT_REPOSITORY=$PIPELINE_GIT_REPOSITORY
@@ -73,5 +82,36 @@ PIPELINE_BUILD_CONTEXT_FAILED_AT=$PIPELINE_BUILD_CONTEXT_FAILED_AT
 EOF
 }
 
+pipeline::env_generate_files() {
+  # generate build files
+  log::info "[pipeline::env] generating ${PIPELINE_BUILD_CONTEXT_ENV} ..."
+  if [ ! -f "$PIPELINE_BUILD_CONTEXT_ENV" ]; then
+    echo "pending" >$PIPELINE_BUILD_CONTEXT_ENV
+  fi
+
+  log::info "[pipeline::env] generating ${PIPELINE_BUILD_CONTEXT_STATUS} ..."
+  if [ ! -f "$PIPELINE_BUILD_CONTEXT_STATUS" ]; then
+    echo "pending" >$PIPELINE_BUILD_CONTEXT_STATUS
+  fi
+
+  log::info "[pipeline::env] generating ${PIPELINE_BUILD_CONTEXT_RUNNING_AT} ..."
+  if [ ! -f "$PIPELINE_BUILD_CONTEXT_RUNNING_AT" ]; then
+    touch $PIPELINE_BUILD_CONTEXT_RUNNING_AT
+  fi
+
+  log::info "[pipeline::env] generating ${PIPELINE_BUILD_CONTEXT_SUCCEED_AT} ..."
+  if [ ! -f "$PIPELINE_BUILD_CONTEXT_SUCCEED_AT" ]; then
+    touch $PIPELINE_BUILD_CONTEXT_SUCCEED_AT
+  fi
+
+  log::info "[pipeline::env] generating ${PIPELINE_BUILD_CONTEXT_FAILED_AT} ..."
+  if [ ! -f "$PIPELINE_BUILD_CONTEXT_FAILED_AT" ]; then
+    touch $PIPELINE_BUILD_CONTEXT_FAILED_AT
+  fi
+  # generate build files end
+}
+
 export -f pipeline::env
 export -f pipeline::env_save
+
+export -f pipeline::env_generate_files
