@@ -51,14 +51,6 @@ core() {
   if [ -d "$PLUGIN_PIPELINE_BUILD_CONTEXT" ]; then
     log::error "[bp] PLUGIN_PIPELINE_BUILD_CONTEXT($PLUGIN_PIPELINE_BUILD_CONTEXT) is already exists, please remove it first"
     exit 1
-    
-    # # / is not allow
-    # if [ "${PLUGIN_PIPELINE_BUILD_CONTEXT:1}" = "" ];
-    #   log::error "[build] env PLUGIN_PIPELINE_BUILD_CONTEXT(${PLUGIN_PIPELINE_BUILD_CONTEXT}) is not allow"
-    #   exit 1
-    # fi
-
-    # rm -rf $PLUGIN_PIPELINE_BUILD_CONTEXT
   fi
 
   mkdir -p $PLUGIN_PIPELINE_BUILD_CONTEXT
