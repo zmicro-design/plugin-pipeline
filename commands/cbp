@@ -46,10 +46,10 @@ core() {
     exit 1
   fi
 
-  if [ -d "$PLUGIN_PIPELINE_BUILD_CONTEXT" ]; then
-    log::error "[cbp] PLUGIN_PIPELINE_BUILD_CONTEXT($PLUGIN_PIPELINE_BUILD_CONTEXT) is already exists, please remove it first"
-    exit 1
-  fi
+  # if [ -d "$PLUGIN_PIPELINE_BUILD_CONTEXT" ]; then
+  #   log::error "[cbp] PLUGIN_PIPELINE_BUILD_CONTEXT($PLUGIN_PIPELINE_BUILD_CONTEXT) is already exists, please remove it first"
+  #   exit 1
+  # fi
 
   mkdir -p $PLUGIN_PIPELINE_BUILD_CONTEXT
 
