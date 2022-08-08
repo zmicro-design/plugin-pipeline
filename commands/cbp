@@ -35,12 +35,6 @@ core() {
   # Load dot env
   # try current
   dotenv::try_load $PWD/.env
-  # try repo
-  # echo "PIPELINE_IMAGE_TAGS: $PIPELINE_IMAGE_TAGS"
-  # echo "PIPELINE_IMAGE_NAME: $PIPELINE_IMAGE_NAME"
-  # echo "PLUGIN_PIPELINE_BUILD_CONTEXT: $PLUGIN_PIPELINE_BUILD_CONTEXT"
-  # echo "PIPELINE_GIT_REPOSITORY_DIR: $PIPELINE_GIT_REPOSITORY_DIR"
-  # dotenv::try_load $PIPELINE_GIT_REPOSITORY_DIR/.env
 
   if [ -z "$PLUGIN_PIPELINE_BUILD_ID" ]; then
     log::error "[prepare] PLUGIN_PIPELINE_BUILD_ID is required"
