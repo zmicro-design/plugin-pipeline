@@ -62,6 +62,12 @@ pipeline::docker_build() {
     done
   fi
 
+  # Issue: cannot save build logs to file
+  # Solution: https://forums.docker.com/t/capture-ouput-of-docker-build-into-a-log-file/123178
+  # Reason: That’s because the output is not on the standard output but the standard error stream.
+  build_scripts="${build_scripts} --progress=plain"
+
+  # with context
   build_scripts="${build_scripts} ${context}"
 
   # log::info "build_scripts: $build_scripts"
