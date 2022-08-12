@@ -53,7 +53,7 @@ core() {
 
   mkdir -p $PLUGIN_PIPELINE_BUILD_CONTEXT
 
-  pipeline::env 2>&1 | tee -a $PIPELINE_BUILD_CONTEXT_LOG
+  pipeline::env 2>&1 # | tee -a $PIPELINE_BUILD_CONTEXT_LOG
 
   pipeline::checkout_build_push 2>&1 | tee -a $PIPELINE_BUILD_CONTEXT_LOG
   if [ "$?" != "0" ]; then
