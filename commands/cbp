@@ -53,12 +53,12 @@ core() {
 
   mkdir -p $PLUGIN_PIPELINE_BUILD_CONTEXT
 
-  pipeline::env
+  pipeline::env 2>&1 | tee -a $PIPELINE_BUILD_CONTEXT_LOG
 
-  pipeline::checkout_build_push | tee -a $PIPELINE_BUILD_CONTEXT_LOG
+  pipeline::checkout_build_push 2>&1 | tee -a $PIPELINE_BUILD_CONTEXT_LOG
   if [ "$?" != "0" ]; then
-    echo "failed" > $PIPELINE_BUILD_CONTEXT_STATUS
-    echo "$(date +%s)" > $PIPELINE_BUILD_CONTEXT_FAILED_AT
+    echo "failed" >$PIPELINE_BUILD_CONTEXT_STATUS
+    echo "$(date +%s)" >$PIPELINE_BUILD_CONTEXT_FAILED_AT
     echo "[cbp] failed to bp"
     exit 1
   fi
