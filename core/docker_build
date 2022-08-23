@@ -70,7 +70,9 @@ pipeline::docker_build() {
   # with context
   build_scripts="${build_scripts} ${context}"
 
-  # log::info "build_scripts: $build_scripts"
+  if [ -n "$PIPELINE_DOCKER_BUILD_DEBUG" ]; then
+    log::info "build_scripts: $build_scripts"
+  fi
 
   $build_scripts
 }
