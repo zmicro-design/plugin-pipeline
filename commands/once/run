@@ -1,0 +1,65 @@
+#!/bin/bash
+
+# set -e
+# fix tee modify the exit code: https://stackoverflow.com/questions/6871859/piping-command-output-to-tee-but-also-save-exit-code-of-command
+set -o pipefail
+
+help() {
+  echo "Run once"
+  echo ""
+  echo "Usage:"
+  echo "  zpipeline once run"
+  echo ""
+  echo "Environment Variables:"
+  echo "  PIPELINE_GIT_REGISTRY           - Git registry to use"
+  echo "  PIPELINE_GIT_REPOSITORY         - Git repository to use"
+  echo "  PIPELINE_GIT_BRANCH             - Git branch to use"
+  echo "  PIPELINE_GIT_REPOSITORY_DIR     - Git repository directory to use"
+  echo "  PIPELINE_DOCKER_REGISTRY        - Docker registry to use"
+  echo "  PIPELINE_IMAGE_NAME             - Docker image name to use"
+  echo "  PIPELINE_IMAGE_TAGS             - Docker image tags to use"
+}
+
+core() {
+  if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+    help
+    exit 0
+  fi
+
+  # Load dot env
+  # try current
+  dotenv::try_load $PWD/.env
+
+  if [ -z "$PLUGIN_PIPELINE_BUILD_ID" ]; then
+    log::error "[prepare] PLUGIN_PIPELINE_BUILD_ID is required"
+    exit 1
+  fi
+
+  if [ -z "$PLUGIN_PIPELINE_BUILD_CONTEXT" ]; then
+    log::error "[bp] env PLUGIN_PIPELINE_BUILD_CONTEXT is required"
+    exit 1
+  fi
+
+  # if [ -d "$PLUGIN_PIPELINE_BUILD_CONTEXT" ]; then
+  #   log::error "[bp] PLUGIN_PIPELINE_BUILD_CONTEXT($PLUGIN_PIPELINE_BUILD_CONTEXT) is already exists, please remove it first"
+  #   exit 1
+  # fi
+
+  mkdir -p $PLUGIN_PIPELINE_BUILD_CONTEXT
+
+  pipeline::env
+
+  pipeline::run_once | tee -a $PIPELINE_BUILD_CONTEXT_LOG
+  if [ "$?" != "0" ]; then
+    echo "failed" >$PIPELINE_BUILD_CONTEXT_STATUS
+    echo "$(date +%s)" >$PIPELINE_BUILD_CONTEXT_FAILED_AT
+    echo "[bp] failed to bp"
+    exit 1
+  fi
+}
+
+run() {
+  core $@
+}
+
+run $@

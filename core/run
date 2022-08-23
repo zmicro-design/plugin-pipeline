@@ -1,0 +1,55 @@
+#!/bin/bash
+
+pipeline::run_once() {
+  # break if any errors occured
+  set -e
+
+  if [ -z "$PLUGIN_PIPELINE_BUILD_CONTEXT" ]; then
+    echo "env PLUGIN_PIPELINE_BUILD_CONTEXT is required"
+    exit 1
+  fi
+
+  if [ ! -d "$PLUGIN_PIPELINE_BUILD_CONTEXT" ]; then
+    echo "PLUGIN_PIPELINE_BUILD_CONTEXT(${PLUGIN_PIPELINE_BUILD_CONTEXT}) is not a directory"
+    exit 1
+  fi
+
+  if [ -z "$PIPELINE_GIT_REPOSITORY_DIR" ]; then
+    echo "env PIPELINE_GIT_REPOSITORY_DIR is required"
+    exit 1
+  fi
+
+  if [ -z "$PIPELINE_DOCKER_REGISTRY" ]; then
+    echo "env PIPELINE_DOCKER_REGISTRY is required"
+    exit 1
+  fi
+
+  if [ -z "$PIPELINE_IMAGE_NAME" ]; then
+    echo "env PIPELINE_IMAGE_NAME is required"
+    exit 1
+  fi
+
+  if [ -z "$PIPELINE_IMAGE_TAGS" ]; then
+    echo "env PIPELINE_IMAGE_TAGS is required"
+    exit 1
+  fi
+
+  log::info "[pipeline::run_once] starting ..."
+
+  echo "$(date +%s)" >$PIPELINE_BUILD_CONTEXT_RUNNING_AT
+  echo "running" >$PIPELINE_BUILD_CONTEXT_STATUS
+
+  if [ "$PIPELINE_DOCKER_USERNAME" ] && [ "$PIPELINE_DOCKER_PASSWORD" ]; then
+    pipeline::docker_login "${PIPELINE_DOCKER_USERNAME}" "${PIPELINE_DOCKER_PASSWORD}" "${PIPELINE_DOCKER_REGISTRY}"
+  fi
+
+  # @4 docker build
+  log::info "[pipeline::run_once] running ..."
+  pipeline::docker_build "${PIPELINE_IMAGE_NAME}" "${PIPELINE_GIT_REPOSITORY_DIR}" "${PIPELINE_IMAGE_TAGS}" "${PIPELINE_DOCKER_REGISTRY}"
+
+  echo "succeed" >$PIPELINE_BUILD_CONTEXT_STATUS
+  echo "$(date +%s)" >$PIPELINE_BUILD_CONTEXT_SUCCEED_AT
+  log::info "[pipeline::run_once] finished"
+}
+
+export -f pipeline::run_once
