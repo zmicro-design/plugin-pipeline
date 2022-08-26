@@ -4,7 +4,12 @@ help() {
   echo "Pipeline run fresh"
   echo ""
   echo "Usage:"
-  echo "  zmicro pipeline service run [options...]"
+  echo "  zmicro pipeline service run"
+  echo ""
+  echo "Environment variables:"
+  echo "  PLUGIN_PIPELINE_SERVICE_INSTANCE_NAME: The name of the pipeline service instance"
+  echo "  PLUGIN_PIPELINE_SERVICE_IMAGE_NAME: The name of the pipeline service image"
+  echo "  PLUGIN_PIPELINE_SERVICE_IMAGE_VERSION: The version of the pipeline service image"
 }
 
 core() {
@@ -13,9 +18,9 @@ core() {
     exit 0
   fi
 
-  pipeline::service_prepare "$@"
+  pipeline::service_prepare
 
-  pipeline::service_run "$@"
+  pipeline::service_run
 }
 
 run() {

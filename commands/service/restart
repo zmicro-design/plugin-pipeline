@@ -4,7 +4,12 @@ help() {
   echo "Pipeline service start"
   echo ""
   echo "Usage:"
-  echo "  zmicro pipeline service start [options...]"
+  echo "  zmicro pipeline service start"
+  echo ""
+  echo "Environment variables:"
+  echo "  PLUGIN_PIPELINE_SERVICE_INSTANCE_NAME: The name of the pipeline service instance"
+  echo "  PLUGIN_PIPELINE_SERVICE_IMAGE_NAME: The name of the pipeline service image"
+  echo "  PLUGIN_PIPELINE_SERVICE_IMAGE_VERSION: The version of the pipeline service image"
 }
 
 core() {
@@ -15,8 +20,8 @@ core() {
 
   pipeline::service_prepare
 
-  pipeline::service_stop "$@"
-  pipeline::service_start "$@"
+  pipeline::service_stop
+  pipeline::service_start
 }
 
 run() {

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-pipeline::docker_deploy() {
+pipeline::docker_deploy_v0() {
   local name=$1
   local config=$2
 
@@ -71,7 +71,7 @@ pipeline::docker_deploy() {
     if [ "$key" = "CI_NETWORK" ]; then
       network=$value
     fi
-  done < "$config"
+  done <"$config"
 
   if [ -z "$image" ]; then
     log::error "[pipeline::docker_deploy] image is required"
@@ -84,5 +84,42 @@ pipeline::docker_deploy() {
 
   build_scripts="$build_scripts $image"
 }
+
+pipeline::docker_deploy() {
+  log::info "[pipeline::docker_deploy] checking ..."
+
+  local PLUGIN_PIPELINE_SERVICE_INSTANCE_NAME=${PLUGIN_PIPELINE_SERVICE_INSTANCE_NAME:-$PIPELINE_SERVICE_INSTANCE_NAME}
+  if [ -z "$PLUGIN_PIPELINE_SERVICE_INSTANCE_NAME" ]; then
+    log::error "[pipeline::docker_deploy] PLUGIN_PIPELINE_SERVICE_INSTANCE_NAME is required"
+    exit 1
+  fi
+
+  local PLUGIN_PIPELINE_SERVICE_DIR=$PLUGIN_PIPELINE_SERVICE_CONTEXT_BASE/$PLUGIN_PIPELINE_SERVICE_INSTANCE_NAME
+  if [ ! -d "$PLUGIN_PIPELINE_SERVICE_DIR" ]; then
+    log::error "[pipeline::docker_deploy] PLUGIN_PIPELINE_SERVICE_DIR($PLUGIN_PIPELINE_SERVICE_DIR) is not found"
+    exit 1
+  fi
+
+  local PIPELINE_SERVICE_ENV_FILE=$PLUGIN_PIPELINE_SERVICE_DIR/.env
+  if [ ! -f "$PIPELINE_SERVICE_ENV_FILE" ]; then
+    log::error "[pipeline::docker_deploy] PIPELINE_SERVICE_ENV_FILE($PIPELINE_SERVICE_ENV_FILE) is not found"
+    exit 1
+  fi
+
+  log::info "[pipeline::docker_deploy] preparing ..."
+  pipeline::service_prepare
+
+  log::info "[pipeline::docker_deploy] starting ..."
+
+  pipeline::service_start
+  if [ $? -ne 0 ]; then
+    log::error "[pipeline::docker_deploy] pipeline::service_start failed"
+    exit 1
+  fi
+
+  log::success "[pipeline::docker_deploy] success ..."
+}
+
+export -f pipeline::docker_deploy_v0
 
 export -f pipeline::docker_deploy

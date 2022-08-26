@@ -2,7 +2,7 @@
 
 help() {
   echo "Usage:"
-  echo "  zpipeline deploy <image> <context> <env>"
+  echo "  zpipeline deploy"
 }
 
 core() {
@@ -11,12 +11,7 @@ core() {
     exit 0
   fi
 
-  local image="$1"
-  local context="$2"
-  local env="$3"
-
-  # @TODO
-  log::error "Not implemented yet"
+  pipeline::docker_deploy
 }
 
 run() {

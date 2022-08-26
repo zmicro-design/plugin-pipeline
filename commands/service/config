@@ -4,7 +4,12 @@ help() {
   echo "Show pipeline config"
   echo ""
   echo "Usage:"
-  echo "  zmicro pipeline service config [options...]"
+  echo "  zmicro pipeline service config"
+  echo ""
+  echo "Environment variables:"
+  echo "  PLUGIN_PIPELINE_SERVICE_INSTANCE_NAME: The name of the pipeline service instance"
+  echo "  PLUGIN_PIPELINE_SERVICE_IMAGE_NAME: The name of the pipeline service image"
+  echo "  PLUGIN_PIPELINE_SERVICE_IMAGE_VERSION: The version of the pipeline service image"
 }
 
 core() {
@@ -15,7 +20,7 @@ core() {
 
   pipeline::service_prepare
 
-  pipeline::service_config "$@"
+  pipeline::service_config
 }
 
 run() {
