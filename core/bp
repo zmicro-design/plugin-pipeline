@@ -36,8 +36,8 @@ pipeline::build_push() {
 
   log::info "[pipeline::build_push] starting ..."
 
-  echo "$(date +%s)" > $PIPELINE_BUILD_CONTEXT_RUNNING_AT 
-  echo "running" > $PIPELINE_BUILD_CONTEXT_STATUS
+  echo "$(date +%s)" >$PIPELINE_BUILD_CONTEXT_RUNNING_AT
+  echo "running" >$PIPELINE_BUILD_CONTEXT_STATUS
 
   if [ "$PIPELINE_DOCKER_USERNAME" ] && [ "$PIPELINE_DOCKER_PASSWORD" ]; then
     pipeline::docker_login "${PIPELINE_DOCKER_USERNAME}" "${PIPELINE_DOCKER_PASSWORD}" "${PIPELINE_DOCKER_REGISTRY}"
@@ -51,8 +51,8 @@ pipeline::build_push() {
   log::info "[pipeline::build_push] pushing ..."
   pipeline::docker_push "${PIPELINE_IMAGE_NAME}" "${PIPELINE_GIT_REPOSITORY_DIR}" "${PIPELINE_IMAGE_TAGS}" "${PIPELINE_DOCKER_REGISTRY}"
 
-  echo "succeed" > $PIPELINE_BUILD_CONTEXT_STATUS
-  echo "$(date +%s)" > $PIPELINE_BUILD_CONTEXT_SUCCEED_AT
+  echo "succeed" >$PIPELINE_BUILD_CONTEXT_STATUS
+  echo "$(date +%s)" >$PIPELINE_BUILD_CONTEXT_SUCCEED_AT
   log::info "[pipeline::build_push] finished"
 }
 
