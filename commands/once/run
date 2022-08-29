@@ -5,16 +5,16 @@
 set -o pipefail
 
 help() {
-  echo "BP: Build => Push"
+  echo "Run once"
   echo ""
   echo "Usage:"
-  echo "  zpipeline bp"
+  echo "  zpipeline once run"
   echo ""
   echo "Environment Variables:"
   echo "  PIPELINE_GIT_REGISTRY           - Git registry to use"
   echo "  PIPELINE_GIT_REPOSITORY         - Git repository to use"
   echo "  PIPELINE_GIT_BRANCH             - Git branch to use"
-  echo "  PIPELINE_GIT_REPOSITORY_DIR    - Git repository directory to use"
+  echo "  PIPELINE_GIT_REPOSITORY_DIR     - Git repository directory to use"
   echo "  PIPELINE_DOCKER_REGISTRY        - Docker registry to use"
   echo "  PIPELINE_IMAGE_NAME             - Docker image name to use"
   echo "  PIPELINE_IMAGE_TAGS             - Docker image tags to use"
@@ -47,9 +47,9 @@ core() {
 
   mkdir -p $PLUGIN_PIPELINE_BUILD_CONTEXT
 
-  pipeline::env 2>&1 # | tee -a $PIPELINE_BUILD_CONTEXT_LOG
+  pipeline::env
 
-  pipeline::build_push 2>&1 | tee -a $PIPELINE_BUILD_CONTEXT_LOG
+  pipeline::run_once | tee -a $PIPELINE_BUILD_CONTEXT_LOG
   if [ "$?" != "0" ]; then
     echo "failed" >$PIPELINE_BUILD_CONTEXT_STATUS
     echo "$(date +%s)" >$PIPELINE_BUILD_CONTEXT_FAILED_AT
