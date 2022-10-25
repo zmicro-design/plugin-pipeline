@@ -2,7 +2,7 @@
 
 help() {
   echo "Usage:"
-  echo "  zpipeline checkout"
+  echo "  pipeline checkout"
 }
 
 core() {
