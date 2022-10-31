@@ -4,37 +4,42 @@
 pipeline::build() {
   if [ -z "$CI_IMAGE_NAME" ]; then
     log::error "[pipeline::build] env CI_IMAGE_NAME is required"
-    exit 1
+    return 1
   fi
 
   if [ -z "$CI_IMAGE_SERVER" ]; then
     log::error "[pipeline::build] env CI_IMAGE_SERVER is required"
-    exit 1
+    return 1
   fi
 
   if [ -z "$CI_IMAGE_USERNAME" ]; then
     log::error "[pipeline::build] env CI_IMAGE_USERNAME is required"
-    exit 1
+    return 1
   fi
 
   if [ -z "$CI_IMAGE_TOKEN" ]; then
     log::error "[pipeline::build] env CI_IMAGE_TOKEN is required"
-    exit 1
+    return 1
   fi
 
   if [ -z "$CI_GIT_COMMIT_HASH" ]; then
     log::error "[pipeline::build] env CI_GIT_COMMIT_HASH is required"
-    exit 1
+    return 1
   fi
 
   if [ -z "$CI_GIT_REPOSITORY" ]; then
     log::error "[pipeline::build] env CI_GIT_REPOSITORY is required"
-    exit 1
+    return 1
   fi
 
   if [ -z "$CI_GIT_WORKDIR" ]; then
     log::error "[pipeline::build] env CI_GIT_WORKDIR is required"
-    exit 1
+    return 1
+  fi
+
+  if [ ! -d "$CI_GIT_WORKDIR" ]; then
+    log::error "[pipeline::build] repositry($CI_GIT_WORKDIR) not found"
+    return 1
   fi
 
   cd $CI_GIT_WORKDIR
