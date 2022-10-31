@@ -38,7 +38,7 @@ pipeline::build() {
   fi
 
   if [ ! -d "$CI_GIT_WORKDIR" ]; then
-    log::error "[pipeline::build] repositry($CI_GIT_WORKDIR) not found"
+    log::error "[pipeline::build] workdir($CI_GIT_WORKDIR) not found"
     return 1
   fi
 

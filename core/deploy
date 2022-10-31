@@ -1,0 +1,97 @@
+#!/bin/bash
+
+# pipeline::deploy - Build a container image from Repository.
+pipeline::deploy() {
+  if [ -z "$CI_IMAGE_NAME" ]; then
+    log::error "[pipeline::deploy] env CI_IMAGE_NAME is required"
+    return 1
+  fi
+
+  if [ -z "$CI_IMAGE_SERVER" ]; then
+    log::error "[pipeline::deploy] env CI_IMAGE_SERVER is required"
+    return 1
+  fi
+
+  if [ -z "$CI_IMAGE_USERNAME" ]; then
+    log::error "[pipeline::deploy] env CI_IMAGE_USERNAME is required"
+    return 1
+  fi
+
+  if [ -z "$CI_IMAGE_TOKEN" ]; then
+    log::error "[pipeline::deploy] env CI_IMAGE_TOKEN is required"
+    return 1
+  fi
+
+  if [ -z "$CI_GIT_COMMIT_HASH" ]; then
+    log::error "[pipeline::deploy] env CI_GIT_COMMIT_HASH is required"
+    return 1
+  fi
+
+  if [ -z "$CI_GIT_REPOSITORY" ]; then
+    log::error "[pipeline::deploy] env CI_GIT_REPOSITORY is required"
+    return 1
+  fi
+
+  if [ -z "$CI_GIT_WORKDIR" ]; then
+    log::error "[pipeline::deploy] env CI_GIT_WORKDIR is required"
+    return 1
+  fi
+
+  if [ ! -d "$CI_GIT_WORKDIR" ]; then
+    log::error "[pipeline::deploy] workdir($CI_GIT_WORKDIR) not found"
+    return 1
+  fi
+
+  cd $CI_GIT_WORKDIR
+
+  log::info "[pipeline::deploy] login image server($CI_IMAGE_SERVER) ..."
+  login::docker $CI_IMAGE_SERVER $CI_IMAGE_USERNAME $CI_IMAGE_TOKEN
+  if [ "$?" != "0" ]; then
+    log::error "[pipeline::deploy] failed to login image server($CI_GIT_SERVER)."
+    return 1
+  fi
+
+  local image_tag=commit_$CI_GIT_COMMIT_HASH
+  local image_name=$CI_IMAGE_SERVER/$CI_IMAGE_NAME:$image_tag
+
+  log::info "[pipeline::deploy] deploying ${image_name} ..."
+  # cd $PLUGIN_DIR/config/deploy
+  # docker-compose config
+  # echo "start server up ..."
+  # pwd
+  # sleep infinity
+  # docker-compose up
+  # docker-compose up -d
+  # docker-compose ps
+
+  local compose_file=./service.compose.yml
+  cat <<EOF >$compose_file
+version: '3.7'
+
+services:
+  service_${CI_APP_MODE}.${CI_APP_ID}.$CI_APP_NAME:
+    container_name: service_${CI_APP_MODE}.${CI_APP_ID}.$CI_APP_NAME
+    image: ${CI_IMAGE_SERVER}/${CI_IMAGE_NAME}:commit_${CI_GIT_COMMIT_HASH}
+    # env_file:
+    #   - .env
+    environment:
+      BACKEND: ${CI_SERVICE_BACKEND}
+
+networks:
+  default:
+    external: true
+    name: devops
+EOF
+
+  docker-compose -f $compose_file config
+  docker-compose -f $compose_file down --remove-orphans
+  docker-compose -f $compose_file up -d
+
+  if [ "$?" != "0" ]; then
+    log::error "[pipeline::deploy] failed to deploy ${image_name}."
+  else
+    log::success "[pipeline::deploy] successfully deploy ${image_name}."
+  fi
+}
+
+export -f pipeline::deploy
