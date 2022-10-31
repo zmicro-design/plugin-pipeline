@@ -80,7 +80,7 @@ services:
 networks:
   default:
     external: true
-    name: devops
+    name: ${PLUGIN_PIPELINE_DEPLOYMENT_NETWORK}
 EOF
 
   docker-compose -f $compose_file config
