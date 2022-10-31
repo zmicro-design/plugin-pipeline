@@ -76,7 +76,13 @@ services:
     #   - .env
     environment:
       BACKEND: ${CI_SERVICE_BACKEND}
-
+    # healthcheck:
+    #   test: ["CMD", "curl", "-f", "http://127.0.0.1:8080"]
+    #   interval: 30s
+    #   timeout: 10s
+    #   retries: 3
+    #   start_period: 40s
+      
 networks:
   default:
     external: true
@@ -86,6 +92,11 @@ EOF
   docker-compose -f $compose_file config
   docker-compose -f $compose_file down --remove-orphans
   docker-compose -f $compose_file up -d
+  if [ "$?" != "0" ]; then
+    log::error "[pipeline::deploy] failed to start service."
+  fi
+
+  # docker-compose -f $compose_file exec service_${CI_APP_MODE}.${CI_APP_ID}.$CI_APP_NAME curl 
 
   if [ "$?" != "0" ]; then
     log::error "[pipeline::deploy] failed to deploy ${image_name}."
