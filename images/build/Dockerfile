@@ -8,6 +8,4 @@ RUN zmicro plugin install pipeline
 
 COPY entrypoint.sh /entrypoint.sh
 
-RUN cat /entrypoint.sh
-
 CMD /entrypoint.sh

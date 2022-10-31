@@ -9,5 +9,5 @@ services:
       - .env
     volumes:
       - /usr/local/lib/zmicro/plugins/pipeline:/usr/local/lib/zmicro/plugins/pipeline
-      - /tmp/data/build:/build/repository
+      - /tmp/data/build/repository:/build/repository
       # - /var/run/docker.sock:/var/run/docker.sock
