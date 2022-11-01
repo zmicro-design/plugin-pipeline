@@ -1,0 +1,73 @@
+#!/bin/bash
+
+# pipeline::build - Build a container image from Repository.
+pipeline::build() {
+  if [ -z "$CI_IMAGE_NAME" ]; then
+    log::error "[pipeline::build] env CI_IMAGE_NAME is required"
+    return 1
+  fi
+
+  if [ -z "$CI_IMAGE_SERVER" ]; then
+    log::error "[pipeline::build] env CI_IMAGE_SERVER is required"
+    return 1
+  fi
+
+  if [ -z "$CI_IMAGE_USERNAME" ]; then
+    log::error "[pipeline::build] env CI_IMAGE_USERNAME is required"
+    return 1
+  fi
+
+  if [ -z "$CI_IMAGE_TOKEN" ]; then
+    log::error "[pipeline::build] env CI_IMAGE_TOKEN is required"
+    return 1
+  fi
+
+  if [ -z "$CI_GIT_COMMIT_HASH" ]; then
+    log::error "[pipeline::build] env CI_GIT_COMMIT_HASH is required"
+    return 1
+  fi
+
+  if [ -z "$CI_GIT_REPOSITORY" ]; then
+    log::error "[pipeline::build] env CI_GIT_REPOSITORY is required"
+    return 1
+  fi
+
+  if [ -z "$CI_GIT_WORKDIR" ]; then
+    log::error "[pipeline::build] env CI_GIT_WORKDIR is required"
+    return 1
+  fi
+
+  if [ ! -d "$CI_GIT_WORKDIR" ]; then
+    log::error "[pipeline::build] workdir($CI_GIT_WORKDIR) not found"
+    return 1
+  fi
+
+  cd $CI_GIT_WORKDIR
+
+  log::info "[pipeline::build] login image server($CI_IMAGE_SERVER) ..."
+  login::docker $CI_IMAGE_SERVER $CI_IMAGE_USERNAME $CI_IMAGE_TOKEN
+  if [ "$?" != "0" ]; then
+    log::error "[pipeline::build] failed to login image server($CI_GIT_SERVER)."
+    return 1
+  fi
+
+  local image_tag=commit_$CI_GIT_COMMIT_HASH
+  local image_name=$CI_IMAGE_SERVER/$CI_IMAGE_NAME:$image_tag
+  log::info "[pipeline::build] building ${image_name} ..."
+  docker build --tag ${image_name} .
+  if [ "$?" != "0" ]; then
+    log::error "[pipeline::build] failed to build ${image_name}."
+    return 1
+  fi
+
+  log::info "[pipeline::build] pushing ${image_name} ..."
+  docker push $image_name
+  if [ "$?" != "0" ]; then
+    log::error "[pipeline::build] failed to push ${image_name}."
+    return 1
+  fi
+
+  log::success "[pipeline::build] successfully build/push ${image_name}."
+}
+
+export -f pipeline::build

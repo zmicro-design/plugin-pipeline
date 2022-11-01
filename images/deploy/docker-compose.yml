@@ -1,0 +1,13 @@
+version: '3.7'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    volumes:
+      - /usr/local/lib/zmicro/plugins/pipeline:/usr/local/lib/zmicro/plugins/pipeline
+      - /tmp/data/build:/build
+      # - /var/run/docker.sock:/var/run/docker.sock

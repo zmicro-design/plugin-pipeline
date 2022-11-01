@@ -2,7 +2,7 @@
 
 help() {
   echo "Usage:"
-  echo "  zpipeline build [--registry <registry>] [--tags <tags>] <name> <context>"
+  echo "  pipeline build"
 }
 
 core() {
@@ -11,34 +11,8 @@ core() {
     exit 0
   fi
 
-  local name=""
-  local context=""
-  local tags=""
-  local registry=""
-
-  while [ "$#" -gt 0 ]; do
-    case "$1" in
-    --registry)
-      registry="$2"
-      shift
-      shift
-      ;;
-    --tags)
-      tags="$2"
-      shift
-      shift
-      ;;
-    *)
-      name="$1"
-      context="$2"
-      shift
-      shift
-      ;;
-    esac
-  done
-
   log::info "################## Building ##################"
-  pipeline::docker_build "$name" "$context" "$tags" "$registry"
+  pipeline::build
   log::info "################ Building END ################"
 }
 

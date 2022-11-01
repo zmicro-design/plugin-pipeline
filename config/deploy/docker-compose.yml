@@ -1,0 +1,18 @@
+version: '3.7'
+
+services:
+  app:
+    image: ${CI_IMAGE_SERVER}/${CI_IMAGE_NAME}:commit_${CI_GIT_COMMIT_HASH}
+    container_name: commit_${CI_GIT_COMMIT_HASH}
+    # env_file:
+    #   - .env
+    environment:
+      BACKEND: https://ta.thinkingdata.cn
+
+# services:
+#   app:
+#     image: docker-ta.thinkingdata.cn/thinking-frontend/ta-multiverse:commit_b4f44af7ebaf8ba117022297e15a1b2087f01076
+#     container_name: commit_b4f44af7ebaf8ba117022297e15a1b2087f01076
+#     environment:
+#       BACKEND: https://ta.thinkingdata.cn
+
