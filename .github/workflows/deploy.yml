@@ -1,4 +1,4 @@
-name: Build Image Checkout
+name: Build Image Deploy
 
 on:
   push:
@@ -16,7 +16,7 @@ jobs:
         uses: whatwewant/action-robot-feishu@v0.0.13
         with:
           url: ${{ secrets.DOCKER_VERSION_FEISHU_BOT_WEBHOOK_URL }}
-          title: '✅ [IMAGE: Checkout] Docker 发布：${{ github.repository }}'
+          title: '✅ [IMAGE: Deploy] Docker 发布：${{ github.repository }}'
           text: |
             分支: ${{ github.ref }}
             提交信息: ${{ github.event.head_commit.message }}
@@ -33,7 +33,7 @@ jobs:
         uses: whatwewant/action-robot-feishu@v0.0.13
         with:
           url: ${{ secrets.DOCKER_VERSION_FEISHU_BOT_WEBHOOK_URL }}
-          title: '❌ [IMAGE: Checkout] Docker 发布：${{ github.repository }}'
+          title: '❌ [IMAGE: Deploy] Docker 发布：${{ github.repository }}'
           text: |
             分支: ${{ github.ref }}
             提交信息: ${{ github.event.head_commit.message }}
@@ -59,7 +59,7 @@ jobs:
       - name: Docker Meta
         id: meta
         run: |
-          ACTION_IMAGE_NAME=pipeline-checkout
+          ACTION_IMAGE_NAME=pipeline-deploy
           IMAGE_VERSION=$(echo ${GITHUB_REF} | sed -e "s%refs/tags/%%g")
           IMAGE_NAME=${ACTION_IMAGE_NAMESPACE}/${ACTION_IMAGE_NAME}
           IMAGE_TAGS=$(zmicro fn tag::docker $IMAGE_NAME $IMAGE_VERSION)
@@ -94,7 +94,7 @@ jobs:
         with:
           build-args: |
             VERSION=${{ steps.meta.outputs.version }}
-          context: images/checkout
+          context: images/deploy
           push: ${{ github.event_name != 'pull_request' }}
           cache-from: type=registry,ref=${{ steps.meta.outputs.name }}:buildcache
           cache-to: type=registry,ref=${{ steps.meta.outputs.name }}:buildcache,mode=max
