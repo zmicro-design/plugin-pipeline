@@ -60,7 +60,7 @@ jobs:
           fetch-depth: "0"
 
       - name: Install Docker CLI
-        run: zmicro package install docker
+        run: zmicro package install docker-buildx
 
       - name: Build Image Checkout
         run: |
@@ -80,17 +80,13 @@ jobs:
           TAGS_OPTIONS=""
           create_tags_options $(echo $TAGS_ARRAY)
           echo "TAGS_OPTIONS: $TAGS_OPTIONS"
-          docker build \
+
+          docker-buildx build \
             --cache-from type=registry,ref=${NAME}:buildcache \
             --cache-to type=registry,ref=${NAME}:buildcache,mode=max \
             --platform ${PLATFORM} \
             ${TAGS_OPTIONS} \
             -f config/docker/Dockerfile.ubuntu \
+            --push \
             .
 
-          push_tag() {
-            for one in ${@}; do
-              docker push ${one}
-            done
-          }
-          push_tag $(echo $TAGS_ARRAY)
