@@ -60,6 +60,9 @@ jobs:
           fetch-depth: "0"
 
       - name: Install Docker CLI
+        run: zmicro package install docker
+
+      - name: Install Docker Plugin Buildx
         run: zmicro package install docker-buildx
 
       - name: Build Image Checkout
@@ -81,7 +84,7 @@ jobs:
           create_tags_options $(echo $TAGS_ARRAY)
           echo "TAGS_OPTIONS: $TAGS_OPTIONS"
 
-          docker-buildx build \
+          docker buildx build \
             --cache-from type=registry,ref=${NAME}:buildcache \
             --cache-to type=registry,ref=${NAME}:buildcache,mode=max \
             --platform ${PLATFORM} \
