@@ -59,6 +59,9 @@ jobs:
         with:
           fetch-depth: "0"
 
+      - name: Install Docker CLI
+        run: zmicro package install docker
+
       - name: Build Image Checkout
         run: |
           VERSION=$(echo ${GITHUB_REF} | sed -e "s%refs/tags/%%g")
