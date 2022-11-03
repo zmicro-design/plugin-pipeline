@@ -11,7 +11,15 @@ core() {
     exit 0
   fi
 
+  log::info "################## DEPLOY START ##################"
+
   pipeline::deploy
+  if [ "$?" != "0" ]; then
+    log::error "[$(timestamp)] failed to deploy."
+    exit 1
+  fi
+
+  log::info "################ DEPLOY END ################"
 }
 
 run() {

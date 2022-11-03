@@ -11,13 +11,19 @@ core() {
     exit 0
   fi
 
-  log::info "################## Building ##################"
+  log::info "################## BUILD START ##################"
+  
   pipeline::build
-  log::info "################ Building END ################"
+  if [ "$?" != "0" ]; then
+    log::error "[$(timestamp)] failed to build."
+    exit 1
+  fi
+
+  log::info "################ BUILD END ################"
 }
 
 run() {
-  core $@
+  core "$@"
 }
 
-run $@
+run "$@"
