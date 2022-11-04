@@ -1,0 +1,12 @@
+version: '3.7'
+
+services:
+  app:
+    build:
+      context: .
+    env_file:
+      - .env
+    command: sleep infinity
+    volumes:
+      - /usr/local/lib/zmicro/plugins/pipeline:/usr/local/lib/zmicro/plugins/pipeline
+      - /tmp/data/build:/build
