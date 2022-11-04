@@ -1,4 +1,4 @@
-name: Build Image Checkout
+name: Build Image Pipeline
 
 on:
   push:
