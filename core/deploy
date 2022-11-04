@@ -12,16 +12,6 @@ pipeline::deploy() {
     return 1
   fi
 
-  if [ -z "$CI_IMAGE_USERNAME" ]; then
-    log::error "[pipeline::deploy] env CI_IMAGE_USERNAME is required"
-    return 1
-  fi
-
-  if [ -z "$CI_IMAGE_TOKEN" ]; then
-    log::error "[pipeline::deploy] env CI_IMAGE_TOKEN is required"
-    return 1
-  fi
-
   if [ -z "$CI_GIT_COMMIT_HASH" ]; then
     log::error "[pipeline::deploy] env CI_GIT_COMMIT_HASH is required"
     return 1
@@ -44,11 +34,24 @@ pipeline::deploy() {
 
   cd $CI_GIT_WORKDIR
 
-  log::info "[pipeline::deploy] login image server($CI_IMAGE_SERVER) ..."
-  login::docker $CI_IMAGE_SERVER $CI_IMAGE_USERNAME $CI_IMAGE_TOKEN
-  if [ "$?" != "0" ]; then
-    log::error "[pipeline::deploy] failed to login image server($CI_GIT_SERVER)."
-    return 1
+  local docker_config_path=$HOME/.docker/config.json
+  if [ ! -f "$docker_config_path" ]; then
+    if [ -z "$CI_IMAGE_USERNAME" ]; then
+      log::error "[pipeline::build] env CI_IMAGE_USERNAME is required"
+      return 1
+    fi
+
+    if [ -z "$CI_IMAGE_TOKEN" ]; then
+      log::error "[pipeline::build] env CI_IMAGE_TOKEN is required"
+      return 1
+    fi
+
+    log::info "[pipeline::build] login image server($CI_IMAGE_SERVER) ..."
+    login::docker $CI_IMAGE_SERVER $CI_IMAGE_USERNAME $CI_IMAGE_TOKEN
+    if [ "$?" != "0" ]; then
+      log::error "[pipeline::build] failed to login image server($CI_GIT_SERVER)."
+      return 1
+    fi
   fi
 
   local image_tag=commit_$CI_GIT_COMMIT_HASH

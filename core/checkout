@@ -2,21 +2,6 @@
 
 # pipeline::checkout - Git clone and checkout a branch of a repository
 pipeline::checkout() {
-  if [ -z "$CI_GIT_SERVER" ]; then
-    log::error "[pipeline::checkout] env CI_GIT_SERVER is required"
-    exit 1
-  fi
-
-  if [ -z "$CI_GIT_USERNAME" ]; then
-    log::error "[pipeline::checkout] env CI_GIT_USERNAME is required"
-    exit 1
-  fi
-
-  if [ -z "$CI_GIT_TOKEN" ]; then
-    log::error "[pipeline::checkout] env CI_GIT_TOKEN is required"
-    exit 1
-  fi
-
   if [ -z "$CI_GIT_COMMIT_HASH" ]; then
     log::error "[pipeline::checkout] env CI_GIT_COMMIT_HASH is required"
     exit 1
@@ -32,11 +17,29 @@ pipeline::checkout() {
     exit 1
   fi
 
-  log::info "[pipeline::checkout] login git server($CI_GIT_SERVER) ..."
-  login::git $CI_GIT_SERVER $CI_GIT_USERNAME $CI_GIT_TOKEN
-  if [ "$?" != "0" ]; then
-    log::error "[pipeline::checkout] failed to login git server($CI_GIT_SERVER)."
-    return 1
+  local git_credentials_path=$HOME/.git-credentials
+  if [ ! -f "$git_credentials_path" ]; then
+    if [ -z "$CI_GIT_SERVER" ]; then
+      log::error "[pipeline::checkout] env CI_GIT_SERVER is required"
+      exit 1
+    fi
+
+    if [ -z "$CI_GIT_USERNAME" ]; then
+      log::error "[pipeline::checkout] env CI_GIT_USERNAME is required"
+      exit 1
+    fi
+
+    if [ -z "$CI_GIT_TOKEN" ]; then
+      log::error "[pipeline::checkout] env CI_GIT_TOKEN is required"
+      exit 1
+    fi
+
+    log::info "[pipeline::checkout] login git server($CI_GIT_SERVER) ..."
+    login::git $CI_GIT_SERVER $CI_GIT_USERNAME $CI_GIT_TOKEN
+    if [ "$?" != "0" ]; then
+      log::error "[pipeline::checkout] failed to login git server($CI_GIT_SERVER)."
+      return 1
+    fi
   fi
 
   log::info "[pipeline::checkout] checkouting $CI_GIT_REPOSITORY at commit $CI_GIT_COMMIT_HASH ..."
