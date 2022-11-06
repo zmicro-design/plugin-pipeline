@@ -7,8 +7,8 @@ pipeline::deploy() {
     return 1
   fi
 
-  if [ -z "$CI_IMAGE_SERVER" ]; then
-    log::error "[pipeline::deploy] env CI_IMAGE_SERVER is required"
+  if [ -z "$CI_IMAGE_REGISTRY_SERVER" ]; then
+    log::error "[pipeline::deploy] env CI_IMAGE_REGISTRY_SERVER is required"
     return 1
   fi
 
@@ -36,18 +36,18 @@ pipeline::deploy() {
 
   local docker_config_path=$HOME/.docker/config.json
   if [ ! -f "$docker_config_path" ]; then
-    if [ -z "$CI_IMAGE_USERNAME" ]; then
-      log::error "[pipeline::build] env CI_IMAGE_USERNAME is required"
+    if [ -z "$CI_IMAGE_REGISTRY_USERNAME" ]; then
+      log::error "[pipeline::build] env CI_IMAGE_REGISTRY_USERNAME is required"
       return 1
     fi
 
-    if [ -z "$CI_IMAGE_TOKEN" ]; then
-      log::error "[pipeline::build] env CI_IMAGE_TOKEN is required"
+    if [ -z "$CI_IMAGE_REGISTRY_TOKEN" ]; then
+      log::error "[pipeline::build] env CI_IMAGE_REGISTRY_TOKEN is required"
       return 1
     fi
 
-    log::info "[pipeline::build] login image server($CI_IMAGE_SERVER) ..."
-    login::docker $CI_IMAGE_SERVER $CI_IMAGE_USERNAME $CI_IMAGE_TOKEN
+    log::info "[pipeline::build] login image server($CI_IMAGE_REGISTRY_SERVER) ..."
+    login::docker $CI_IMAGE_REGISTRY_SERVER $CI_IMAGE_REGISTRY_USERNAME $CI_IMAGE_REGISTRY_TOKEN
     if [ "$?" != "0" ]; then
       log::error "[pipeline::build] failed to login image server($CI_GIT_SERVER)."
       return 1
@@ -55,7 +55,7 @@ pipeline::deploy() {
   fi
 
   local image_tag=commit_$CI_GIT_COMMIT_HASH
-  local image_name=$CI_IMAGE_SERVER/$CI_IMAGE_NAME:$image_tag
+  local image_name=$CI_IMAGE_REGISTRY_SERVER/$CI_IMAGE_NAME:$image_tag
 
   log::info "[pipeline::deploy] deploying ${image_name} ..."
   # cd $PLUGIN_DIR/config/deploy
@@ -74,7 +74,7 @@ version: '3.7'
 services:
   service_${CI_APP_MODE}.${CI_APP_ID}.$CI_APP_NAME:
     container_name: service_${CI_APP_MODE}.${CI_APP_ID}.$CI_APP_NAME
-    image: ${CI_IMAGE_SERVER}/${CI_IMAGE_NAME}:commit_${CI_GIT_COMMIT_HASH}
+    image: ${CI_IMAGE_REGISTRY_SERVER}/${CI_IMAGE_NAME}:commit_${CI_GIT_COMMIT_HASH}
     # env_file:
     #   - .env
     environment:

@@ -2,7 +2,7 @@ version: '3.7'
 
 services:
   app:
-    image: ${CI_IMAGE_SERVER}/${CI_IMAGE_NAME}:commit_${CI_GIT_COMMIT_HASH}
+    image: ${CI_IMAGE_REGISTRY_SERVER}/${CI_IMAGE_NAME}:commit_${CI_GIT_COMMIT_HASH}
     container_name: commit_${CI_GIT_COMMIT_HASH}
     # env_file:
     #   - .env
