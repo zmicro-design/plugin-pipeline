@@ -32,8 +32,8 @@ pipeline::docker_build() {
 
   tags=$(string::split , ${tags})
 
-  # build_scripts="docker buildx build"
-  local build_scripts="docker build"
+  local build_scripts="docker buildx build"
+  # local build_scripts="docker build"
 
   if [ -n "$registry" ]; then
     local registries=$(string::split , ${registry})
