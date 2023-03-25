@@ -16,19 +16,7 @@ core() {
 
   zmicro jvm install $jdk_version
 
-  # JAVA_HOME will auto set
-  export JAVA_HOME="$HOME/.jabba/jdk/${jdk_version}"
-
-  export PATH="$JAVA_HOME/bin:$PATH"
-
-  # maven
   zmicro package install maven
-
-  export MAVEN_HOME=/usr/lib/maven
-
-  export M2_HOME=/usr/lib/maven
-
-  mvn --version
 }
 
 run() {
