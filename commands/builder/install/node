@@ -13,7 +13,12 @@ core() {
 
   zmicro nvm install v18.15.0
 
-  source $HOME/.bashrc
+  # @TODO
+  # npm: command not found
+  # yarn: command not found
+  #
+  # source $HOME/.bashrc
+  [ -s "$ZMICRO_HOME/plugins/nvm/source" ] && \. $ZMICRO_HOME/plugins/nvm/source
 
   # npm i -g npm@v9.5.0
 
