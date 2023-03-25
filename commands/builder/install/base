@@ -26,6 +26,9 @@ core() {
   # jvm
   zmicro plugin install jvm
 
+  # install gzfly
+  zmicro package install gzfly
+  
   # install gzssh
   zmicro package install gzssh
 
