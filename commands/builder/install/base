@@ -1,0 +1,46 @@
+#!/bin/bash
+
+help() {
+  echo "Usage:"
+  echo "  install base"
+}
+
+core() {
+  if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+    help
+    exit 0
+  fi
+
+  # nvm
+  zmicro plugin install nvm
+
+  # gvm
+  zmicro plugin install gvm
+
+  # dvm
+  zmicro plugin install dvm
+
+  # rsvm
+  zmicro plugin install rsvm
+
+  # jvm
+  zmicro plugin install jvm
+
+  # install gzssh
+  zmicro package install gzssh
+
+  # install gzterminal
+  zmicro package install gzterminal
+
+  # install docker
+  zmicro package install docker
+
+  # install docker-compose
+  zmicro package install docker-compose
+}
+
+run() {
+  core $@
+}
+
+run $@

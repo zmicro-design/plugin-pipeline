@@ -1,0 +1,32 @@
+#!/bin/bash
+
+help() {
+  echo "Usage:"
+  echo "  install node"
+}
+
+core() {
+  if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+    help
+    exit 0
+  fi
+
+  zmicro nvm install v18.15.0
+
+  source $HOME/.bashrc
+
+  # npm i -g npm@v9.5.0
+
+  # @FEAT GPM (cli: gpm)
+  npm i -g @cliz/gpm @cliz/web-terminal @cliz/nobot @cliz/os-info
+
+  npm -g config set prefix $HOME/.node
+
+  yarn config set cache-folder $HOME/.node
+}
+
+run() {
+  core $@
+}
+
+run $@

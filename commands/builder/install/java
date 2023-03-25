@@ -1,0 +1,38 @@
+#!/bin/bash
+
+help() {
+  echo "Usage:"
+  echo "  install java"
+}
+
+core() {
+  if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+    help
+    exit 0
+  fi
+
+  # zulu 11
+  export jdk_version=zulu@1.11.0
+
+  zmicro jvm install $jdk_version
+
+  # JAVA_HOME will auto set
+  export JAVA_HOME="$HOME/.jabba/jdk/${jdk_version}"
+
+  export PATH="$JAVA_HOME/bin:$PATH"
+
+  # maven
+  zmicro package install maven
+
+  export MAVEN_HOME=/usr/local/lib/maven
+
+  export M2_HOME=/usr/local/lib/maven
+
+  mvn --version
+}
+
+run() {
+  core $@
+}
+
+run $@
