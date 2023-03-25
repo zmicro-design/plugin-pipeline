@@ -23,7 +23,7 @@ core() {
   # npm i -g npm@v9.5.0
 
   # @FEAT GPM (cli: gpm)
-  npm i -g @cliz/gpm @cliz/web-terminal @cliz/nobot @cliz/os-info
+  npm i -g yarn @cliz/gpm @cliz/web-terminal @cliz/nobot @cliz/os-info
 
   npm -g config set prefix $HOME/.node
 
