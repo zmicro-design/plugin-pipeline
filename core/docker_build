@@ -67,6 +67,11 @@ pipeline::docker_build() {
   # Reason: That’s because the output is not on the standard output but the standard error stream.
   build_scripts="${build_scripts} --progress=plain"
 
+  # build options
+  if [ -n "$PIPELINE_DOCKER_BUILD_OPTIONS" ]; then
+    build_scripts="${build_scripts} ${PIPELINE_DOCKER_BUILD_OPTIONS}"
+  fi
+
   # with context
   build_scripts="${build_scripts} ${context}"
 
