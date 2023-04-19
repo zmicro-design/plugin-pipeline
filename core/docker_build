@@ -67,6 +67,29 @@ pipeline::docker_build() {
   # Reason: That’s because the output is not on the standard output but the standard error stream.
   build_scripts="${build_scripts} --progress=plain"
 
+  # build args
+  if [ -n "$PIPELINE_DOCKER_BUILD_ARGS_ENVFILE" ]; then
+    local build_args=$(cat $PIPELINE_DOCKER_BUILD_ARGS_ENVFILE)
+    for arg in $build_args; do
+      # ignore empty line
+      if [ -z "$arg" ]; then
+        continue
+      fi
+
+      # ignore # comment
+      if [ "${arg:0:1}" == "#" ]; then
+        continue
+      fi
+
+      build_scripts="${build_scripts} --build-arg ${arg}"
+    done
+  fi
+
+  # build platform
+  if [ -n "$PIPELINE_DOCKER_BUILD_PLATFORMS" ]; then
+    build_scripts="${build_scripts} --platform ${PIPELINE_DOCKER_BUILD_PLATFORMS}"
+  fi
+
   # build options
   if [ -n "$PIPELINE_DOCKER_BUILD_OPTIONS" ]; then
     build_scripts="${build_scripts} ${PIPELINE_DOCKER_BUILD_OPTIONS}"
@@ -75,9 +98,10 @@ pipeline::docker_build() {
   # with context
   build_scripts="${build_scripts} ${context}"
 
-  if [ -n "$PIPELINE_DOCKER_BUILD_DEBUG" ]; then
-    log::info "build_scripts: $build_scripts"
-  fi
+  # if [ -n "$PIPELINE_DOCKER_BUILD_DEBUG" ]; then
+  #   log::info "build_scripts: $build_scripts"
+  # fi
+  log::info "build_scripts: $build_scripts"
 
   $build_scripts
 }
