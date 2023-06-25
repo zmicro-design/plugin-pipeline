@@ -90,6 +90,12 @@ pipeline::docker_build() {
     build_scripts="${build_scripts} --platform ${PIPELINE_DOCKER_BUILD_PLATFORMS}"
   fi
 
+  # build cache
+  if [ "$PIPELINE_DOCKER_BUILD_CACHE_ENABLE" = "true" ]; then
+    build_scripts="${build_scripts} --cache-from type=registry,ref=${registry}/${name}:buildcache"
+    build_scripts="${build_scripts} --cache-to type=registry,ref=${registry}/${name}:buildcache,mode=max"
+  fi
+
   # build options
   if [ -n "$PIPELINE_DOCKER_BUILD_OPTIONS" ]; then
     build_scripts="${build_scripts} ${PIPELINE_DOCKER_BUILD_OPTIONS}"
