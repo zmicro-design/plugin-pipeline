@@ -48,8 +48,8 @@ pipeline::build_push() {
   pipeline::docker_build "${PIPELINE_IMAGE_NAME}" "${PIPELINE_GIT_REPOSITORY_DIR}" "${PIPELINE_IMAGE_TAGS}" "${PIPELINE_DOCKER_REGISTRY}"
 
   # @5 docker push
-  log::info "[pipeline::build_push] pushing ..."
-  pipeline::docker_push "${PIPELINE_IMAGE_NAME}" "${PIPELINE_GIT_REPOSITORY_DIR}" "${PIPELINE_IMAGE_TAGS}" "${PIPELINE_DOCKER_REGISTRY}"
+  # log::info "[pipeline::build_push] pushing ..."
+  # pipeline::docker_push "${PIPELINE_IMAGE_NAME}" "${PIPELINE_GIT_REPOSITORY_DIR}" "${PIPELINE_IMAGE_TAGS}" "${PIPELINE_DOCKER_REGISTRY}"
 
   echo "succeed" >$PIPELINE_BUILD_CONTEXT_STATUS
   echo "$(date +%s)" >$PIPELINE_BUILD_CONTEXT_SUCCEED_AT

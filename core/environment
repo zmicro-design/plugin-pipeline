@@ -34,10 +34,10 @@ pipeline::env() {
   pipeline::env_save
 
   # log
-  log::info "PIPELINE_BUILD_ID: $PLUGIN_PIPELINE_BUILD_ID"
-  log::info "PIPELINE_BUILD_CONTEXT: $PLUGIN_PIPELINE_BUILD_CONTEXT"
+  # log::info "PIPELINE_BUILD_ID: $PLUGIN_PIPELINE_BUILD_ID"
+  # log::info "PIPELINE_BUILD_CONTEXT: $PLUGIN_PIPELINE_BUILD_CONTEXT"
   # log::info "PIPELINE_BUILD_CONTEXT_ENV: $PIPELINE_BUILD_CONTEXT_ENV"
-  log::info "PIPELINE_BUILD_CONTEXT_LOG: $PIPELINE_BUILD_CONTEXT_LOG"
+  # log::info "PIPELINE_BUILD_CONTEXT_LOG: $PIPELINE_BUILD_CONTEXT_LOG"
   # log::info "PIPELINE_BUILD_CONTEXT_STATUS: $PIPELINE_BUILD_CONTEXT_STATUS"
   # log::info "PIPELINE_BUILD_CONTEXT_RUNNING_AT: $PIPELINE_BUILD_CONTEXT_RUNNING_AT"
   # log::info "PIPELINE_BUILD_CONTEXT_SUCCEED_AT: $PIPELINE_BUILD_CONTEXT_SUCCEED_AT"
@@ -84,27 +84,27 @@ EOF
 
 pipeline::env_generate_files() {
   # generate build files
-  log::info "[pipeline::env] generating ${PIPELINE_BUILD_CONTEXT_ENV} ..."
+  log::debug "[pipeline::env] generating ${PIPELINE_BUILD_CONTEXT_ENV} ..."
   if [ ! -f "$PIPELINE_BUILD_CONTEXT_ENV" ]; then
     echo "pending" >$PIPELINE_BUILD_CONTEXT_ENV
   fi
 
-  log::info "[pipeline::env] generating ${PIPELINE_BUILD_CONTEXT_STATUS} ..."
+  log::debug "[pipeline::env] generating ${PIPELINE_BUILD_CONTEXT_STATUS} ..."
   if [ ! -f "$PIPELINE_BUILD_CONTEXT_STATUS" ]; then
     echo "pending" >$PIPELINE_BUILD_CONTEXT_STATUS
   fi
 
-  log::info "[pipeline::env] generating ${PIPELINE_BUILD_CONTEXT_RUNNING_AT} ..."
+  log::debug "[pipeline::env] generating ${PIPELINE_BUILD_CONTEXT_RUNNING_AT} ..."
   if [ ! -f "$PIPELINE_BUILD_CONTEXT_RUNNING_AT" ]; then
     touch $PIPELINE_BUILD_CONTEXT_RUNNING_AT
   fi
 
-  log::info "[pipeline::env] generating ${PIPELINE_BUILD_CONTEXT_SUCCEED_AT} ..."
+  log::debug "[pipeline::env] generating ${PIPELINE_BUILD_CONTEXT_SUCCEED_AT} ..."
   if [ ! -f "$PIPELINE_BUILD_CONTEXT_SUCCEED_AT" ]; then
     touch $PIPELINE_BUILD_CONTEXT_SUCCEED_AT
   fi
 
-  log::info "[pipeline::env] generating ${PIPELINE_BUILD_CONTEXT_FAILED_AT} ..."
+  log::debug "[pipeline::env] generating ${PIPELINE_BUILD_CONTEXT_FAILED_AT} ..."
   if [ ! -f "$PIPELINE_BUILD_CONTEXT_FAILED_AT" ]; then
     touch $PIPELINE_BUILD_CONTEXT_FAILED_AT
   fi
