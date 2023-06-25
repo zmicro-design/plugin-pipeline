@@ -32,8 +32,12 @@ pipeline::docker_build() {
 
   tags=$(string::split , ${tags})
 
-  local build_scripts="docker buildx build --push"
-  # local build_scripts="docker build"
+  # local build_cmd="docker build"
+  local build_cmd="docker buildx build"
+
+  if [ "$NO_PUSH" != "true" ]; then
+    build_cmd="${build_cmd} --push"
+  fi
 
   if [ -n "$registry" ]; then
     local registries=$(string::split , ${registry})
@@ -49,7 +53,7 @@ pipeline::docker_build() {
         registry=${registry#http:\/\/}
         registry=${registry#https:\/\/}
 
-        build_scripts="${build_scripts} --tag ${registry}/${name}:${tag}"
+        build_cmd="${build_cmd} --tag ${registry}/${name}:${tag}"
       done
     done
   else
@@ -58,14 +62,14 @@ pipeline::docker_build() {
         continue
       fi
 
-      build_scripts="${build_scripts} --tag ${name}:${tag}"
+      build_cmd="${build_cmd} --tag ${name}:${tag}"
     done
   fi
 
   # Issue: cannot save build logs to file
   # Solution: https://forums.docker.com/t/capture-ouput-of-docker-build-into-a-log-file/123178
   # Reason: That’s because the output is not on the standard output but the standard error stream.
-  build_scripts="${build_scripts} --progress=plain"
+  build_cmd="${build_cmd} --progress=plain"
 
   # build args
   if [ -n "$PIPELINE_DOCKER_BUILD_ARGS_ENVFILE" ]; then
@@ -81,35 +85,55 @@ pipeline::docker_build() {
         continue
       fi
 
-      build_scripts="${build_scripts} --build-arg ${arg}"
+      build_cmd="${build_cmd} --build-arg ${arg}"
     done
   fi
 
   # build platform
   if [ -n "$PIPELINE_DOCKER_BUILD_PLATFORMS" ]; then
-    build_scripts="${build_scripts} --platform ${PIPELINE_DOCKER_BUILD_PLATFORMS}"
+    build_cmd="${build_cmd} --platform ${PIPELINE_DOCKER_BUILD_PLATFORMS}"
   fi
 
   # build cache
   if [ "$PIPELINE_DOCKER_BUILD_CACHE_ENABLE" = "true" ]; then
-    build_scripts="${build_scripts} --cache-from type=registry,ref=${registry}/${name}:buildcache"
-    build_scripts="${build_scripts} --cache-to type=registry,ref=${registry}/${name}:buildcache,mode=max"
+    build_cmd="${build_cmd} --cache-from type=registry,ref=${registry}/${name}:buildcache"
+    build_cmd="${build_cmd} --cache-to type=registry,ref=${registry}/${name}:buildcache,mode=max"
+  fi
+
+  # build builder
+  if [ -n "$PIPELINE_DOCKER_BUILD_BUILDER" ]; then
+    build_cmd="${build_cmd} --builder ${PIPELINE_DOCKER_BUILD_BUILDER}"
+  fi
+
+  # build stage
+  if [ -n "$PIPELINE_DOCKER_BUILD_STAGE" ]; then
+    build_cmd="${build_cmd} --stage ${PIPELINE_DOCKER_BUILD_STAGE}"
+  fi
+
+  # build network
+  if [ -n "$PIPELINE_DOCKER_BUILD_NETWORK" ]; then
+    build_cmd="${build_cmd} --network ${PIPELINE_DOCKER_BUILD_NETWORK}"
   fi
 
   # build options
   if [ -n "$PIPELINE_DOCKER_BUILD_OPTIONS" ]; then
-    build_scripts="${build_scripts} ${PIPELINE_DOCKER_BUILD_OPTIONS}"
+    build_cmd="${build_cmd} ${PIPELINE_DOCKER_BUILD_OPTIONS}"
+  fi
+
+  # build ssh
+  if [ -n "$PIPELINE_DOCKER_BUILD_SSH" ]; then
+    build_cmd="${build_cmd} --ssh ${PIPELINE_DOCKER_BUILD_SSH}"
   fi
 
   # with context
-  build_scripts="${build_scripts} ${context}"
+  build_cmd="${build_cmd} ${context}"
 
   # if [ -n "$PIPELINE_DOCKER_BUILD_DEBUG" ]; then
-  #   log::info "build_scripts: $build_scripts"
+  #   log::info "build_cmd: $build_cmd"
   # fi
-  log::info "build_scripts: $build_scripts"
+  log::info "build_cmd: $build_cmd"
 
-  $build_scripts
+  $build_cmd
 }
 
 export -f pipeline::docker_build
