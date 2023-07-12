@@ -35,8 +35,14 @@ pipeline::docker_build() {
   # local build_cmd="docker build"
   local build_cmd="docker buildx build"
 
+  # auto push
   if [ "$NO_PUSH" != "true" ]; then
     build_cmd="${build_cmd} --push"
+  fi
+
+  # custom dockerfile path
+  if [ -n "$PIPELINE_DOCKER_BUILD_DOCKERFILE" ]; then
+    build_cmd="${build_cmd} -f ${PIPELINE_DOCKER_BUILD_DOCKERFILE}"
   fi
 
   if [ -n "$registry" ]; then
