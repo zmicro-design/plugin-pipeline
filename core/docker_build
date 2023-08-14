@@ -34,7 +34,11 @@ pipeline::docker_build() {
 
   # local build_cmd="docker build"
   local build_cmd="docker buildx build"
-
+    # build platform
+  if [ -n "$PIPELINE_DOCKER_BUILD_PLATFORMS" ]; then
+    build_cmd="${build_cmd} --platform ${PIPELINE_DOCKER_BUILD_PLATFORMS}"
+  fi
+  
   # auto push
   if [ "$NO_PUSH" != "true" ]; then
     build_cmd="${build_cmd} --push"
@@ -93,11 +97,6 @@ pipeline::docker_build() {
 
       build_cmd="${build_cmd} --build-arg ${arg}"
     done
-  fi
-
-  # build platform
-  if [ -n "$PIPELINE_DOCKER_BUILD_PLATFORMS" ]; then
-    build_cmd="${build_cmd} --platform ${PIPELINE_DOCKER_BUILD_PLATFORMS}"
   fi
 
   # build cache
