@@ -129,6 +129,14 @@ pipeline::docker_build() {
   if [ -n "$PIPELINE_DOCKER_BUILD_SSH" ]; then
     build_cmd="${build_cmd} --ssh ${PIPELINE_DOCKER_BUILD_SSH}"
   fi
+  
+  # build context extra
+  if [ -n "$PIPELINE_DOCKER_BUILD_CONTEXT_EXTRA" ]; then
+    local contexts=$(string::split , $PIPELINE_DOCKER_BUILD_CONTEXT_EXTRA)
+    for one in ${contexts}; do
+      build_cmd="${build_cmd} --build-context ${one}"
+    done
+  fi
 
   # with context
   build_cmd="${build_cmd} ${context}"
