@@ -159,9 +159,12 @@ pipeline::docker_build() {
   # if [ -n "$PIPELINE_DOCKER_BUILD_DEBUG" ]; then
   #   log::info "build_cmd: $build_cmd"
   # fi
-  log::info "build_cmd: $build_cmd"
 
-  $build_cmd
+  local tmp_file=$(os::tmp_file)
+  echo "$build_cmd" > $tmp_file
+
+  log::info "build_cmd: $(cat $tmp_file)"
+  bash $tmp_file
 }
 
 export -f pipeline::docker_build
