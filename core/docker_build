@@ -83,20 +83,35 @@ pipeline::docker_build() {
 
   # build args
   if [ -n "$PIPELINE_DOCKER_BUILD_ARGS_ENVFILE" ]; then
-    local build_args=$(cat $PIPELINE_DOCKER_BUILD_ARGS_ENVFILE)
-    for arg in $build_args; do
+    # local build_args=$(cat $PIPELINE_DOCKER_BUILD_ARGS_ENVFILE)
+    # for arg in $build_args; do
+    #   # ignore empty line
+    #   if [ -z "$arg" ]; then
+    #     continue
+    #   fi
+
+    #   # ignore # comment
+    #   if [ "${arg:0:1}" == "#" ]; then
+    #     continue
+    #   fi
+
+    #   build_cmd="${build_cmd} --build-arg ${arg}"
+    # done
+
+    # read line from envfile
+    while IFS= read -r line; do
       # ignore empty line
-      if [ -z "$arg" ]; then
+      if [ -z "$line" ]; then
         continue
       fi
 
       # ignore # comment
-      if [ "${arg:0:1}" == "#" ]; then
+      if [ "${line:0:1}" == "#" ]; then
         continue
       fi
 
-      build_cmd="${build_cmd} --build-arg ${arg}"
-    done
+      build_cmd="${build_cmd} --build-arg \"${line}\""
+    done < $PIPELINE_DOCKER_BUILD_ARGS_ENVFILE
   fi
 
   # build cache
